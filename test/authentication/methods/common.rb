@@ -2,7 +2,7 @@ module Authentication
   module Methods
 
     module Common
-      include Net::SSH::Authentication::Constants
+      include Net::BloomfireSSH::Authentication::Constants
   
       private
   

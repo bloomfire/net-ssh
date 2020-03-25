@@ -1,11 +1,11 @@
 require 'net/ssh/loggable'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Service
 
       # This class implements various port forwarding services for use by
-      # Net::SSH clients. The Forward class should never need to be instantiated
+      # Net::BloomfireSSH clients. The Forward class should never need to be instantiated
       # directly; instead, it should be accessed via the singleton instance
       # returned by Connection::Session#forward:
       #
@@ -211,7 +211,7 @@ module Net
         #   end
         #   session.loop { !got_remote_port }
         #   if got_remote_port == :error
-        #     raise Net::SSH::Exception, "remote forwarding request failed"
+        #     raise Net::BloomfireSSH::Exception, "remote forwarding request failed"
         #   end
         #
         def remote(port, host, remote_port, remote_host="127.0.0.1")
@@ -227,7 +227,7 @@ module Net
                             end
               unless instruction == :no_exception
                 error { "remote forwarding request failed" }
-                raise Net::SSH::Exception, "remote forwarding request failed"
+                raise Net::BloomfireSSH::Exception, "remote forwarding request failed"
               end
             end
           end
@@ -253,7 +253,7 @@ module Net
             if success
               @remote_forwarded_ports.delete([port, host])
             else
-              raise Net::SSH::Exception, "could not cancel remote forward request on #{host}:#{port}"
+              raise Net::BloomfireSSH::Exception, "could not cancel remote forward request on #{host}:#{port}"
             end
           end
         end
@@ -281,7 +281,7 @@ module Net
         # time a session channel is opened, when the connection was created with
         # :forward_agent set to true:
         #
-        #    Net::SSH.start("remote.host", "me", :forward_agent => true) do |ssh|
+        #    Net::BloomfireSSH.start("remote.host", "me", :forward_agent => true) do |ssh|
         #      ssh.open_channel do |ch|
         #        # agent will be automatically forwarded by this point
         #      end
@@ -312,8 +312,8 @@ module Net
         # +client+ is a socket, +channel+ is the channel that was just created,
         # and +type+ is an arbitrary string describing the type of the channel.
         def prepare_client(client, channel, type)
-          client.extend(Net::SSH::BufferedIo)
-          client.extend(Net::SSH::ForwardedBufferedIo)
+          client.extend(Net::BloomfireSSH::BufferedIo)
+          client.extend(Net::BloomfireSSH::ForwardedBufferedIo)
           client.logger = logger
 
           session.listen_to(client)
@@ -390,7 +390,7 @@ module Net
           remote = @remote_forwarded_ports[[connected_port, connected_address]]
 
           if remote.nil?
-            raise Net::SSH::ChannelOpenFailed.new(1, "unknown request from remote forwarded connection on #{connected_address}:#{connected_port}")
+            raise Net::BloomfireSSH::ChannelOpenFailed.new(1, "unknown request from remote forwarded connection on #{connected_address}:#{connected_port}")
           end
 
           client = TCPSocket.new(remote.host, remote.port)
@@ -398,7 +398,7 @@ module Net
 
           prepare_client(client, channel, :remote)
         rescue SocketError => err
-          raise Net::SSH::ChannelOpenFailed.new(2, "could not connect to remote host (#{remote.host}:#{remote.port}): #{err.message}")
+          raise Net::BloomfireSSH::ChannelOpenFailed.new(2, "could not connect to remote host (#{remote.host}:#{remote.port}): #{err.message}")
         end
 
         # The callback used when an auth-agent channel is requested by the server.
@@ -415,7 +415,7 @@ module Net
             end
           rescue Exception => e
             error { "attempted to connect to agent but failed: #{e.class.name} (#{e.message})" }
-            raise Net::SSH::ChannelOpenFailed.new(2, "could not connect to authentication agent")
+            raise Net::BloomfireSSH::ChannelOpenFailed.new(2, "could not connect to authentication agent")
           end
         end
       end

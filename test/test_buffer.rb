@@ -18,18 +18,18 @@ class TestBuffer < NetSSHTest
   end
 
   def test_from_should_require_an_even_number_of_arguments
-    assert_raises(ArgumentError) { Net::SSH::Buffer.from("this") }
+    assert_raises(ArgumentError) { Net::BloomfireSSH::Buffer.from("this") }
   end
 
   def test_from_should_build_new_buffer_from_definition
-    buffer = Net::SSH::Buffer.from(:byte, 1, :long, 2, :int64, 3, :string, "4", :bool, true, :bool, false, :bignum, OpenSSL::BN.new("1234567890", 10), :raw, "something")
+    buffer = Net::BloomfireSSH::Buffer.from(:byte, 1, :long, 2, :int64, 3, :string, "4", :bool, true, :bool, false, :bignum, OpenSSL::BN.new("1234567890", 10), :raw, "something")
     assert_equal "\1\0\0\0\2\0\0\0\0\0\0\0\3\0\0\0\0014\1\0\000\000\000\004I\226\002\322something", buffer.to_s
   end
 
   def test_from_should_build_new_buffer_that_includes_utf8_string_128_characters
     length = 128
     # letter A has a 1 byte UTF8 representation
-    buffer = Net::SSH::Buffer.from(:long, 2, :string, 'A' * length)
+    buffer = Net::BloomfireSSH::Buffer.from(:long, 2, :string, 'A' * length)
     # long of 2 + length 128 as network endian + 128 A's
     expected = "\x00\x00\x00\x02" + [length].pack('N*') + ("\x41" * length)
     assert_equal expected, buffer.to_s
@@ -37,30 +37,30 @@ class TestBuffer < NetSSHTest
 
   def test_from_should_build_new_buffer_with_frozen_strings
     foo = 'foo'.freeze
-    buffer = Net::SSH::Buffer.from(:string, foo)
+    buffer = Net::BloomfireSSH::Buffer.from(:string, foo)
     assert_equal "\0\0\0\3foo", buffer.to_s
   end
 
   def test_from_should_build_new_buffer_with_utf8_frozen_strings
     foo = "\u2603".freeze
-    buffer = Net::SSH::Buffer.from(:string, foo)
+    buffer = Net::BloomfireSSH::Buffer.from(:string, foo)
     assert_equal "\0\0\0\3\u2603".force_encoding('BINARY'), buffer.to_s
   end
 
   def test_from_should_not_change_regular_paramaters
     foo = "\u2603"
-    buffer = Net::SSH::Buffer.from(:string, foo)
+    buffer = Net::BloomfireSSH::Buffer.from(:string, foo)
     assert_equal "\0\0\0\3\u2603".force_encoding('BINARY'), buffer.to_s
     assert_equal foo.encoding.to_s, "UTF-8"
   end
 
   def test_from_with_array_argument_should_write_multiple_of_the_given_type
-    buffer = Net::SSH::Buffer.from(:byte, [1,2,3,4,5])
+    buffer = Net::BloomfireSSH::Buffer.from(:byte, [1,2,3,4,5])
     assert_equal "\1\2\3\4\5", buffer.to_s
   end
 
   def test_from_should_measure_bytesize_of_utf_8_string_correctly
-    buffer = Net::SSH::Buffer.from(:string, "\u2603") # Snowman is 3 bytes
+    buffer = Net::BloomfireSSH::Buffer.from(:string, "\u2603") # Snowman is 3 bytes
     assert_equal "\0\0\0\3\u2603".force_encoding('BINARY'), buffer.to_s
   end
 
@@ -227,14 +227,14 @@ class TestBuffer < NetSSHTest
 
   def test_read_key_should_read_dsa_key_type_and_keyblob
     random_dss do |buffer|
-      b2 = Net::SSH::Buffer.from(:string, "ssh-dss", :raw, buffer)
+      b2 = Net::BloomfireSSH::Buffer.from(:string, "ssh-dss", :raw, buffer)
       b2.read_key
     end
   end
 
   def test_read_key_should_read_rsa_key_type_and_keyblob
     random_rsa do |buffer|
-      b2 = Net::SSH::Buffer.from(:string, "ssh-rsa", :raw, buffer)
+      b2 = Net::BloomfireSSH::Buffer.from(:string, "ssh-rsa", :raw, buffer)
       b2.read_key
     end
   end
@@ -369,21 +369,21 @@ class TestBuffer < NetSSHTest
 
     def test_read_key_should_read_ecdsa_sha2_nistp256_key_type_and_keyblob
       random_ecdsa_sha2_nistp256 do |buffer|
-        b2 = Net::SSH::Buffer.from(:string, "ecdsa-sha2-nistp256", :raw, buffer)
+        b2 = Net::BloomfireSSH::Buffer.from(:string, "ecdsa-sha2-nistp256", :raw, buffer)
         b2.read_key
       end
     end
 
     def test_read_key_should_read_ecdsa_sha2_nistp384_key_type_and_keyblob
       random_ecdsa_sha2_nistp384 do |buffer|
-        b2 = Net::SSH::Buffer.from(:string, "ecdsa-sha2-nistp384", :raw, buffer)
+        b2 = Net::BloomfireSSH::Buffer.from(:string, "ecdsa-sha2-nistp384", :raw, buffer)
         b2.read_key
       end
     end
 
     def test_read_key_should_read_ecdsa_sha2_nistp521_key_type_and_keyblob
       random_ecdsa_sha2_nistp521 do |buffer|
-        b2 = Net::SSH::Buffer.from(:string, "ecdsa-sha2-nistp521", :raw, buffer)
+        b2 = Net::BloomfireSSH::Buffer.from(:string, "ecdsa-sha2-nistp521", :raw, buffer)
         b2.read_key
       end
     end
@@ -426,7 +426,7 @@ class TestBuffer < NetSSHTest
   def random_rsa
     n1 = OpenSSL::BN.new(rand(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).to_s, 10)
     n2 = OpenSSL::BN.new(rand(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).to_s, 10)
-    buffer = Net::SSH::Buffer.from(:bignum, [n1, n2])
+    buffer = Net::BloomfireSSH::Buffer.from(:bignum, [n1, n2])
     key = yield(buffer)
     assert_equal "ssh-rsa", key.ssh_type
     assert_equal n1, key.e
@@ -438,7 +438,7 @@ class TestBuffer < NetSSHTest
     n2 = OpenSSL::BN.new(rand(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).to_s, 10)
     n3 = OpenSSL::BN.new(rand(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).to_s, 10)
     n4 = OpenSSL::BN.new(rand(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).to_s, 10)
-    buffer = Net::SSH::Buffer.from(:bignum, [n1, n2, n3, n4])
+    buffer = Net::BloomfireSSH::Buffer.from(:bignum, [n1, n2, n3, n4])
     key = yield(buffer)
     assert_equal "ssh-dss", key.ssh_type
     assert_equal n1, key.p
@@ -450,7 +450,7 @@ class TestBuffer < NetSSHTest
   if defined?(OpenSSL::PKey::EC)
     def random_ecdsa_sha2_nistp256
       k = OpenSSL::PKey::EC.new("prime256v1").generate_key
-      buffer = Net::SSH::Buffer.from(:string, "nistp256",
+      buffer = Net::BloomfireSSH::Buffer.from(:string, "nistp256",
                                      :string, k.public_key.to_bn.to_s(2))
       key = yield(buffer)
       assert_equal "ecdsa-sha2-nistp256", key.ssh_type
@@ -459,7 +459,7 @@ class TestBuffer < NetSSHTest
 
     def random_ecdsa_sha2_nistp384
       k = OpenSSL::PKey::EC.new("secp384r1").generate_key
-      buffer = Net::SSH::Buffer.from(:string, "nistp384",
+      buffer = Net::BloomfireSSH::Buffer.from(:string, "nistp384",
                                      :string, k.public_key.to_bn.to_s(2))
       key = yield(buffer)
       assert_equal "ecdsa-sha2-nistp384", key.ssh_type
@@ -468,7 +468,7 @@ class TestBuffer < NetSSHTest
 
     def random_ecdsa_sha2_nistp521
       k = OpenSSL::PKey::EC.new("secp521r1").generate_key
-      buffer = Net::SSH::Buffer.from(:string, "nistp521",
+      buffer = Net::BloomfireSSH::Buffer.from(:string, "nistp521",
                                      :string, k.public_key.to_bn.to_s(2))
       key = yield(buffer)
       assert_equal "ecdsa-sha2-nistp521", key.ssh_type
@@ -477,6 +477,6 @@ class TestBuffer < NetSSHTest
   end
 
   def new(*args)
-    Net::SSH::Buffer.new(*args)
+    Net::BloomfireSSH::Buffer.new(*args)
   end
 end

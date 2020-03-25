@@ -2,7 +2,7 @@ require 'net/ssh/loggable'
 require 'net/ssh/ruby_compat'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Connection
       # EventLoop can be shared across multiple sessions
       #

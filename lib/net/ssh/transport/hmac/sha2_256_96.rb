@@ -1,6 +1,6 @@
 require 'net/ssh/transport/hmac/abstract'
 
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
 
   if defined?(SHA2_256) # need openssl support
     # The SHA256-96 HMAC algorithm. This returns only the first 12 bytes of

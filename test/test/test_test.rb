@@ -2,7 +2,7 @@ require_relative '../common'
 require 'net/ssh/test'
 
 class TestNetSSHTest < NetSSHTest
-  include Net::SSH::Test
+  include Net::BloomfireSSH::Test
 
   def test_example
     story do |session|

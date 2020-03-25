@@ -1,37 +1,37 @@
 module Net 
-  module SSH
-    # A general exception class, to act as the ancestor of all other Net::SSH
+  module BloomfireSSH
+    # A general exception class, to act as the ancestor of all other Net::BloomfireSSH
     # exception classes.
     class Exception < ::RuntimeError; end
 
     # This exception is raised when authentication fails (whether it be
     # public key authentication, password authentication, or whatever).
-    class AuthenticationFailed < Net::SSH::Exception; end
+    class AuthenticationFailed < Net::BloomfireSSH::Exception; end
 
     # This exception is raised when a connection attempt times out.
-    class ConnectionTimeout < Net::SSH::Exception; end
+    class ConnectionTimeout < Net::BloomfireSSH::Exception; end
 
     # This exception is raised when the remote host has disconnected
     # unexpectedly.
-    class Disconnect < Net::SSH::Exception; end
+    class Disconnect < Net::BloomfireSSH::Exception; end
 
     # This exception is raised when the remote host has disconnected/
     # timeouted unexpectedly.
     class Timeout < Disconnect; end
 
     # This exception is primarily used internally, but if you have a channel
-    # request handler (see Net::SSH::Connection::Channel#on_request) that you
+    # request handler (see Net::BloomfireSSH::Connection::Channel#on_request) that you
     # want to fail in such a way that the server knows it failed, you can
-    # raise this exception in the handler and Net::SSH will translate that into
+    # raise this exception in the handler and Net::BloomfireSSH will translate that into
     # a "channel failure" message.
-    class ChannelRequestFailed < Net::SSH::Exception; end
+    class ChannelRequestFailed < Net::BloomfireSSH::Exception; end
 
     # This is exception is primarily used internally, but if you have a channel
-    # open handler (see Net::SSH::Connection::Session#on_open_channel) and you
+    # open handler (see Net::BloomfireSSH::Connection::Session#on_open_channel) and you
     # want to fail in such a way that the server knows it failed, you can
-    # raise this exception in the handler and Net::SSH will translate that into
+    # raise this exception in the handler and Net::BloomfireSSH will translate that into
     # a "channel open failed" message.
-    class ChannelOpenFailed < Net::SSH::Exception
+    class ChannelOpenFailed < Net::BloomfireSSH::Exception
       attr_reader :code, :reason
   
       def initialize(code, reason)
@@ -43,7 +43,7 @@ module Net
     # Base class for host key exceptions. When rescuing this exception, you can
     # inspect the key fingerprint and, if you want to proceed anyway, simply call
     # the remember_host! method on the exception, and then retry.
-    class HostKeyError < Net::SSH::Exception
+    class HostKeyError < Net::BloomfireSSH::Exception
       # the callback to use when #remember_host! is called
       attr_writer :callback #:nodoc:
   
@@ -82,7 +82,7 @@ module Net
         @data && @data[:key]
       end
   
-      # Tell Net::SSH to record this host and key in the known hosts file, so
+      # Tell Net::BloomfireSSH to record this host and key in the known hosts file, so
       # that subsequent connections will remember them.
       def remember_host!
         @callback.call

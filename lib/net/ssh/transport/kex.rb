@@ -3,7 +3,7 @@ require 'net/ssh/transport/kex/diffie_hellman_group14_sha1'
 require 'net/ssh/transport/kex/diffie_hellman_group_exchange_sha1'
 require 'net/ssh/transport/kex/diffie_hellman_group_exchange_sha256'
 
-module Net::SSH::Transport
+module Net::BloomfireSSH::Transport
   module Kex
     # Maps the supported key-exchange algorithms as named by the SSH protocol
     # to their corresponding implementors.

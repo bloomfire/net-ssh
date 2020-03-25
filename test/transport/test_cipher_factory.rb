@@ -7,7 +7,7 @@ module Transport
 
   class TestCipherFactory < NetSSHTest
     def self.if_supported?(name)
-      yield if Net::SSH::Transport::CipherFactory.supported?(name)
+      yield if Net::BloomfireSSH::Transport::CipherFactory.supported?(name)
     end
 
     def test_lengths_for_none
@@ -315,7 +315,7 @@ module Transport
                 hash: '!@#$%#$^%$&^&%#$@$' }
 
     def factory
-      Net::SSH::Transport::CipherFactory
+      Net::BloomfireSSH::Transport::CipherFactory
     end
 
     def encrypt(type)

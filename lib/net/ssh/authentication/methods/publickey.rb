@@ -3,7 +3,7 @@ require 'net/ssh/errors'
 require 'net/ssh/authentication/methods/abstract'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -28,7 +28,7 @@ module Net
           # Builds a packet that contains the request formatted for sending
           # a public-key request to the server.
           def build_request(pub_key, username, next_service, has_sig)
-            blob = Net::SSH::Buffer.new
+            blob = Net::BloomfireSSH::Buffer.new
             blob.write_key pub_key
 
             userauth_request(username, next_service, "publickey", has_sig,
@@ -55,7 +55,7 @@ module Net
             case message.type
             when USERAUTH_PK_OK
               buffer = build_request(identity, username, next_service, true)
-              sig_data = Net::SSH::Buffer.new
+              sig_data = Net::BloomfireSSH::Buffer.new
               sig_data.write_string(session_id)
               sig_data.append(buffer.to_s)
 
@@ -71,12 +71,12 @@ module Net
               when USERAUTH_FAILURE
                 debug { "publickey failed (#{identity.fingerprint})" }
 
-                raise Net::SSH::Authentication::DisallowedMethod unless
+                raise Net::BloomfireSSH::Authentication::DisallowedMethod unless
                   message[:authentications].split(/,/).include? 'publickey'
 
                 return false
               else
-                raise Net::SSH::Exception,
+                raise Net::BloomfireSSH::Exception,
                   "unexpected server response to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
               end
 
@@ -86,7 +86,7 @@ module Net
               return true
 
             else
-              raise Net::SSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
+              raise Net::BloomfireSSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
             end
           end
         end

@@ -9,17 +9,17 @@ unless ENV['NET_SSH_NO_ED25519']
 
     class TestED25519 < NetSSHTest
       def setup
-        raise "No ED25519 set NET_SSH_NO_ED25519 to ignore this test" unless Net::SSH::Authentication::ED25519Loader::LOADED
+        raise "No ED25519 set NET_SSH_NO_ED25519 to ignore this test" unless Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
       end
 
       def test_no_pwd_key
-        pub = Net::SSH::Buffer.new(Base64.decode64(public_key_no_pwd.split(' ')[1]))
+        pub = Net::BloomfireSSH::Buffer.new(Base64.decode64(public_key_no_pwd.split(' ')[1]))
         _type = pub.read_string
         pub_data = pub.read_string
         priv = private_key_no_pwd
 
-        pub_key = Net::SSH::Authentication::ED25519::PubKey.new(pub_data)
-        priv_key = Net::SSH::Authentication::ED25519::PrivKey.read(priv, nil)
+        pub_key = Net::BloomfireSSH::Authentication::ED25519::PubKey.new(pub_data)
+        priv_key = Net::BloomfireSSH::Authentication::ED25519::PrivKey.read(priv, nil)
 
         shared_secret = "Hello"
         signed = priv_key.ssh_do_sign(shared_secret)
@@ -34,13 +34,13 @@ unless ENV['NET_SSH_NO_ED25519']
           puts "Skipping password protected ED25519 for JRuby"
           return
         end
-        pub = Net::SSH::Buffer.new(Base64.decode64(public_key_pwd.split(' ')[1]))
+        pub = Net::BloomfireSSH::Buffer.new(Base64.decode64(public_key_pwd.split(' ')[1]))
         _type = pub.read_string
         pub_data = pub.read_string
         priv = private_key_pwd
 
-        pub_key = Net::SSH::Authentication::ED25519::PubKey.new(pub_data)
-        priv_key = Net::SSH::Authentication::ED25519::PrivKey.read(priv,'pwd')
+        pub_key = Net::BloomfireSSH::Authentication::ED25519::PubKey.new(pub_data)
+        priv_key = Net::BloomfireSSH::Authentication::ED25519::PrivKey.read(priv,'pwd')
 
         shared_secret = "Hello"
         signed = priv_key.ssh_do_sign(shared_secret)
@@ -51,7 +51,7 @@ unless ENV['NET_SSH_NO_ED25519']
       end
 
       def test_pwd_key_should_ask
-        pub = Net::SSH::Buffer.new(Base64.decode64(public_key_pwd.split(' ')[1]))
+        pub = Net::BloomfireSSH::Buffer.new(Base64.decode64(public_key_pwd.split(' ')[1]))
         _type = pub.read_string
         pub_data = pub.read_string
         priv = private_key_pwd
@@ -65,8 +65,8 @@ unless ENV['NET_SSH_NO_ED25519']
           prompter
         end
 
-        pub_key = Net::SSH::Authentication::ED25519::PubKey.new(pub_data)
-        priv_key = Net::SSH::KeyFactory.load_data_private_key(priv, nil, true, "", prompt)
+        pub_key = Net::BloomfireSSH::Authentication::ED25519::PubKey.new(pub_data)
+        priv_key = Net::BloomfireSSH::KeyFactory.load_data_private_key(priv, nil, true, "", prompt)
 
         shared_secret = "Hello"
         signed = priv_key.ssh_do_sign(shared_secret)

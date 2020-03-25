@@ -4,7 +4,7 @@ require 'net/ssh/test/kex'
 require 'net/ssh/test/socket'
 
 module Net
-  module SSH
+  module BloomfireSSH
 
     # This module may be used in unit tests, for when you want to test that your
     # SSH state machines are really doing what you expect they are doing. You will
@@ -15,7 +15,7 @@ module Net
     #   require 'net/ssh/test'
     #
     #   class MyTest < Minitest::Test
-    #     include Net::SSH::Test
+    #     include Net::BloomfireSSH::Test
     #
     #     def test_exec_via_channel_works
     #       story do |session|
@@ -42,37 +42,37 @@ module Net
     #     end
     #   end
     #
-    # See Net::SSH::Test::Channel and Net::SSH::Test::Script for more options.
+    # See Net::BloomfireSSH::Test::Channel and Net::BloomfireSSH::Test::Script for more options.
     #
-    # Note that the Net::SSH::Test system is rather finicky yet, and can be kind
+    # Note that the Net::BloomfireSSH::Test system is rather finicky yet, and can be kind
     # of frustrating to get working. Any suggestions for improvement will be
     # welcome!
     module Test
       # If a block is given, yields the script for the test socket (#socket).
-      # Otherwise, simply returns the socket's script. See Net::SSH::Test::Script.
+      # Otherwise, simply returns the socket's script. See Net::BloomfireSSH::Test::Script.
       def story
-        Net::SSH::Test::Extensions::IO.with_test_extension { yield socket.script if block_given? }
+        Net::BloomfireSSH::Test::Extensions::IO.with_test_extension { yield socket.script if block_given? }
         return socket.script
       end
 
       # Returns the test socket instance to use for these tests (see
-      # Net::SSH::Test::Socket).
+      # Net::BloomfireSSH::Test::Socket).
       def socket(options={})
-        @socket ||= Net::SSH::Test::Socket.new
+        @socket ||= Net::BloomfireSSH::Test::Socket.new
       end
 
-      # Returns the connection session (Net::SSH::Connection::Session) for use
+      # Returns the connection session (Net::BloomfireSSH::Connection::Session) for use
       # in these tests. It is a fully functional SSH session, operating over
       # a mock socket (#socket).
       def connection(options={})
-        @connection ||= Net::SSH::Connection::Session.new(transport(options), options)
+        @connection ||= Net::BloomfireSSH::Connection::Session.new(transport(options), options)
       end
 
-      # Returns the transport session (Net::SSH::Transport::Session) for use
+      # Returns the transport session (Net::BloomfireSSH::Transport::Session) for use
       # in these tests. It is a fully functional SSH transport session, operating
       # over a mock socket (#socket).
       def transport(options={})
-        @transport ||= Net::SSH::Transport::Session.new(
+        @transport ||= Net::BloomfireSSH::Transport::Session.new(
           options[:host] || "localhost",
           options.merge(kex: "test", host_key: "ssh-rsa", verify_host_key: :never, proxy: socket(options))
         )
@@ -85,7 +85,7 @@ module Net
       # the block passed to this assertion.
       def assert_scripted
         raise "there is no script to be processed" if socket.script.events.empty?
-        Net::SSH::Test::Extensions::IO.with_test_extension { yield }
+        Net::BloomfireSSH::Test::Extensions::IO.with_test_extension { yield }
         assert socket.script.events.empty?, "there should not be any remaining scripted events, but there are still #{socket.script.events.length} pending"
       end
     end

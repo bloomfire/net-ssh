@@ -2,7 +2,7 @@ require 'net/ssh/errors'
 require 'net/ssh/transport/constants'
 require 'net/ssh/transport/kex/diffie_hellman_group1_sha1'
 
-module Net::SSH::Transport::Kex
+module Net::BloomfireSSH::Transport::Kex
 
   # A key-exchange service implementing the
   # "diffie-hellman-group-exchange-sha1" key-exchange algorithm.
@@ -39,12 +39,12 @@ module Net::SSH::Transport::Kex
       compute_need_bits
 
       # request the DH key parameters for the given number of bits.
-      buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, data[:minimum_dh_bits],
+      buffer = Net::BloomfireSSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, data[:minimum_dh_bits],
         :long, data[:need_bits], :long, MAXIMUM_BITS)
       connection.send_message(buffer)
 
       buffer = connection.next_message
-      raise Net::SSH::Exception, "expected KEXDH_GEX_GROUP, got #{buffer.type}" unless buffer.type == KEXDH_GEX_GROUP
+      raise Net::BloomfireSSH::Exception, "expected KEXDH_GEX_GROUP, got #{buffer.type}" unless buffer.type == KEXDH_GEX_GROUP
 
       p = buffer.read_bignum
       g = buffer.read_bignum
@@ -60,7 +60,7 @@ module Net::SSH::Transport::Kex
     # Build the signature buffer to use when verifying a signature from
     # the server.
     def build_signature_buffer(result)
-      response = Net::SSH::Buffer.new
+      response = Net::BloomfireSSH::Buffer.new
       response.write_string data[:client_version_string],
                             data[:server_version_string],
                             data[:client_algorithm_packet],

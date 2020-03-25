@@ -9,10 +9,10 @@ require 'rubygems'
 require 'net/ssh/authentication/pageant' if Gem.win_platform? && RUBY_PLATFORM != "java"
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       # Class for representing agent-specific errors.
-      class AgentError < Net::SSH::Exception; end
+      class AgentError < Net::BloomfireSSH::Exception; end
       # An exception for indicating that the SSH agent is not available.
       class AgentNotAvailable < AgentError; end
 
@@ -205,9 +205,9 @@ module Net
 
         # Read the next packet from the agent. This will return a two-part
         # tuple consisting of the packet type, and the packet's body (which
-        # is returned as a Net::SSH::Buffer).
+        # is returned as a Net::BloomfireSSH::Buffer).
         def read_packet
-          buffer = Net::SSH::Buffer.new(@socket.read(4))
+          buffer = Net::BloomfireSSH::Buffer.new(@socket.read(4))
           buffer.append(@socket.read(buffer.read_long))
           type = buffer.read_byte
           debug { "received agent packet #{type} len #{buffer.length - 4}" }
@@ -234,30 +234,30 @@ module Net
           # nuances with encoding (e.g. `n` and `e` are reversed for RSA keys) make this impractical.
           case priv_key.ssh_type
           when /^ssh-dss$/
-            Net::SSH::Buffer.from(:bignum, priv_key.p, :bignum, priv_key.q, :bignum, priv_key.g,
+            Net::BloomfireSSH::Buffer.from(:bignum, priv_key.p, :bignum, priv_key.q, :bignum, priv_key.g,
                         :bignum, priv_key.pub_key, :bignum, priv_key.priv_key).to_s
           when /^ssh-dss-cert-v01@openssh\.com$/
-            Net::SSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.priv_key).to_s
+            Net::BloomfireSSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.priv_key).to_s
           when /^ecdsa\-sha2\-(\w*)$/
             curve_name = OpenSSL::PKey::EC::CurveNameAliasInv[priv_key.group.curve_name]
-            Net::SSH::Buffer.from(:string, curve_name, :mstring, priv_key.public_key.to_bn.to_s(2),
+            Net::BloomfireSSH::Buffer.from(:string, curve_name, :mstring, priv_key.public_key.to_bn.to_s(2),
                         :bignum, priv_key.private_key).to_s
           when /^ecdsa\-sha2\-(\w*)-cert-v01@openssh\.com$/
-            Net::SSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.private_key).to_s
+            Net::BloomfireSSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.private_key).to_s
           when /^ssh-ed25519$/
-            Net::SSH::Buffer.from(:string, priv_key.public_key.verify_key.to_bytes,
+            Net::BloomfireSSH::Buffer.from(:string, priv_key.public_key.verify_key.to_bytes,
                         :string, priv_key.sign_key.keypair).to_s
           when /^ssh-ed25519-cert-v01@openssh\.com$/
             # Unlike the other certificate types, the public key is included after the certifiate.
-            Net::SSH::Buffer.from(:string, priv_key.to_blob,
+            Net::BloomfireSSH::Buffer.from(:string, priv_key.to_blob,
                         :string, priv_key.key.public_key.verify_key.to_bytes,
                         :string, priv_key.key.sign_key.keypair).to_s
           when /^ssh-rsa$/
             # `n` and `e` are reversed compared to the ordering in `OpenSSL::PKey::RSA#to_blob`.
-            Net::SSH::Buffer.from(:bignum, priv_key.n, :bignum, priv_key.e, :bignum, priv_key.d,
+            Net::BloomfireSSH::Buffer.from(:bignum, priv_key.n, :bignum, priv_key.e, :bignum, priv_key.d,
                         :bignum, priv_key.iqmp, :bignum, priv_key.p, :bignum, priv_key.q).to_s
           when /^ssh-rsa-cert-v01@openssh\.com$/
-            Net::SSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.d,
+            Net::BloomfireSSH::Buffer.from(:string, priv_key.to_blob, :bignum, priv_key.key.d,
                         :bignum, priv_key.key.iqmp, :bignum, priv_key.key.p,
                         :bignum, priv_key.key.q).to_s
           end

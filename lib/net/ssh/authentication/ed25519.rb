@@ -10,7 +10,7 @@ require 'net/ssh/authentication/pub_key_fingerprint'
 require 'bcrypt_pbkdf' unless RUBY_PLATFORM == "java"
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module ED25519
         class SigningKeyFromFile < SimpleDelegator
@@ -23,7 +23,7 @@ module Net
         end
 
         class OpenSSHPrivateKeyLoader
-          CipherFactory = Net::SSH::Transport::CipherFactory
+          CipherFactory = Net::BloomfireSSH::Transport::CipherFactory
 
           MBEGIN = "-----BEGIN OPENSSH PRIVATE KEY-----\n"
           MEND = "-----END OPENSSH PRIVATE KEY-----\n"
@@ -46,7 +46,7 @@ module Net
             datab64 = datafull[MBEGIN.size...-MEND.size]
             data = Base64.decode64(datab64)
             raise ArgumentError.new("Expected #{MAGIC} at start of decoded private key") unless data.start_with?(MAGIC)
-            buffer = Net::SSH::Buffer.new(data[MAGIC.size + 1..-1])
+            buffer = Net::BloomfireSSH::Buffer.new(data[MAGIC.size + 1..-1])
 
             ciphername = buffer.read_string
             raise ArgumentError.new("#{ciphername} in private key is not supported") unless
@@ -55,7 +55,7 @@ module Net
             kdfname = buffer.read_string
             raise ArgumentError.new("Expected #{kdfname} to be or none or bcrypt") unless %w[none bcrypt].include?(kdfname)
 
-            kdfopts = Net::SSH::Buffer.new(buffer.read_string)
+            kdfopts = Net::BloomfireSSH::Buffer.new(buffer.read_string)
             num_keys = buffer.read_long
             raise ArgumentError.new("Only 1 key is supported in ssh keys #{num_keys} was in private key") unless num_keys == 1
             _pubkey = buffer.read_string
@@ -81,7 +81,7 @@ module Net
             decoded = cipher.update(buffer.remainder_as_buffer.to_s)
             decoded << cipher.final
 
-            decoded = Net::SSH::Buffer.new(decoded)
+            decoded = Net::BloomfireSSH::Buffer.new(decoded)
             check1 = decoded.read_long
             check2 = decoded.read_long
 
@@ -98,7 +98,7 @@ module Net
         end
 
         class PubKey
-          include Net::SSH::Authentication::PubKeyFingerprint
+          include Net::BloomfireSSH::Authentication::PubKeyFingerprint
 
           attr_reader :verify_key
 
@@ -111,7 +111,7 @@ module Net
           end
 
           def to_blob
-            Net::SSH::Buffer.from(:mstring,"ssh-ed25519",:string,@verify_key.to_bytes).to_s
+            Net::BloomfireSSH::Buffer.from(:mstring,"ssh-ed25519",:string,@verify_key.to_bytes).to_s
           end
 
           def ssh_type
@@ -133,7 +133,7 @@ module Net
         end
 
         class PrivKey
-          CipherFactory = Net::SSH::Transport::CipherFactory
+          CipherFactory = Net::BloomfireSSH::Transport::CipherFactory
 
           MBEGIN = "-----BEGIN OPENSSH PRIVATE KEY-----\n"
           MEND = "-----END OPENSSH PRIVATE KEY-----\n"

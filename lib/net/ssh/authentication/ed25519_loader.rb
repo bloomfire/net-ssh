@@ -1,5 +1,5 @@
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Authentication
 
       # Loads ED25519 support which requires optinal dependecies like

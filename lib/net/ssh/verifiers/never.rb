@@ -1,5 +1,5 @@
 module Net
-  module SSH
+  module BloomfireSSH
     module Verifiers
 
       # This host key verifier simply allows every key it sees, without

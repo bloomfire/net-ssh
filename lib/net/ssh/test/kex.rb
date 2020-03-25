@@ -6,7 +6,7 @@ require 'net/ssh/transport/constants'
 require 'net/ssh/transport/kex'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Test
 
       # An implementation of a key-exchange strategy specifically for unit tests.
@@ -16,7 +16,7 @@ module Net
       # This registers itself with the transport key-exchange system as the
       # "test" algorithm.
       class Kex
-        include Net::SSH::Transport::Constants
+        include Net::BloomfireSSH::Transport::Constants
     
         # Creates a new instance of the testing key-exchange algorithm with the
         # given arguments.
@@ -27,11 +27,11 @@ module Net
         # Exchange keys with the server. This returns a hash of constant values,
         # and does not actually exchange keys.
         def exchange_keys
-          result = Net::SSH::Buffer.from(:byte, NEWKEYS)
+          result = Net::BloomfireSSH::Buffer.from(:byte, NEWKEYS)
           @connection.send_message(result)
     
           buffer = @connection.next_message
-          raise Net::SSH::Exception, "expected NEWKEYS" unless buffer.type == NEWKEYS
+          raise Net::BloomfireSSH::Exception, "expected NEWKEYS" unless buffer.type == NEWKEYS
     
           { session_id: "abc-xyz",
             server_key: OpenSSL::PKey::RSA.new(512),
@@ -44,5 +44,5 @@ module Net
   end
 end
 
-Net::SSH::Transport::Algorithms::ALGORITHMS[:kex] << "test"
-Net::SSH::Transport::Kex::MAP["test"] = Net::SSH::Test::Kex
+Net::BloomfireSSH::Transport::Algorithms::ALGORITHMS[:kex] << "test"
+Net::BloomfireSSH::Transport::Kex::MAP["test"] = Net::BloomfireSSH::Test::Kex

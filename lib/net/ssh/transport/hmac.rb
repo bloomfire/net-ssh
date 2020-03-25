@@ -12,7 +12,7 @@ require 'net/ssh/transport/hmac/none'
 
 # Implements a simple factory interface for fetching hmac implementations, or
 # for finding the key lengths for hmac implementations.s
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
   # The mapping of SSH hmac algorithms to their implementations
   MAP = {
     'hmac-md5'       => MD5,
@@ -25,16 +25,16 @@ module Net::SSH::Transport::HMAC
   }
 
   # add mapping to sha2 hmac algorithms if they're available
-  MAP['hmac-sha2-256']    = SHA2_256    if defined?(::Net::SSH::Transport::HMAC::SHA2_256)
-  MAP['hmac-sha2-256-96'] = SHA2_256_96 if defined?(::Net::SSH::Transport::HMAC::SHA2_256_96)
-  MAP['hmac-sha2-512']    = SHA2_512    if defined?(::Net::SSH::Transport::HMAC::SHA2_512)
-  MAP['hmac-sha2-512-96'] = SHA2_512_96 if defined?(::Net::SSH::Transport::HMAC::SHA2_512_96)
+  MAP['hmac-sha2-256']    = SHA2_256    if defined?(::Net::BloomfireSSH::Transport::HMAC::SHA2_256)
+  MAP['hmac-sha2-256-96'] = SHA2_256_96 if defined?(::Net::BloomfireSSH::Transport::HMAC::SHA2_256_96)
+  MAP['hmac-sha2-512']    = SHA2_512    if defined?(::Net::BloomfireSSH::Transport::HMAC::SHA2_512)
+  MAP['hmac-sha2-512-96'] = SHA2_512_96 if defined?(::Net::BloomfireSSH::Transport::HMAC::SHA2_512_96)
 
   # Retrieves a new hmac instance of the given SSH type (+name+). If +key+ is
   # given, the new instance will be initialized with that key.
   def self.get(name, key="", parameters = {})
     impl = MAP[name] or raise ArgumentError, "hmac not found: #{name.inspect}"
-    impl.new(Net::SSH::Transport::KeyExpander.expand_key(impl.key_length, key, parameters))
+    impl.new(Net::BloomfireSSH::Transport::KeyExpander.expand_key(impl.key_length, key, parameters))
   end
 
   # Retrieves the key length for the hmac of the given SSH type (+name+).

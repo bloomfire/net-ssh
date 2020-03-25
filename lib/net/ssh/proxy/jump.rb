@@ -2,17 +2,17 @@ require 'uri'
 require 'net/ssh/proxy/command'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Proxy
 
       # An implementation of a jump proxy. To use it, instantiate it,
       # then pass the instantiated object via the :proxy key to
-      # Net::SSH.start:
+      # Net::BloomfireSSH.start:
       #
       #   require 'net/ssh/proxy/jump'
       #
-      #   proxy = Net::SSH::Proxy::Jump.new('user@proxy')
-      #   Net::SSH.start('host', 'user', :proxy => proxy) do |ssh|
+      #   proxy = Net::BloomfireSSH::Proxy::Jump.new('user@proxy')
+      #   Net::BloomfireSSH.start('host', 'user', :proxy => proxy) do |ssh|
       #     ...
       #   end
       class Jump < Command
@@ -33,7 +33,7 @@ module Net
         end
     
         # We cannot build the ProxyCommand template until we know if the :config
-        # option was specified during `Net::SSH.start`.
+        # option was specified during `Net::BloomfireSSH.start`.
         def build_proxy_command_equivalent(connection_options = nil)
           first_jump, extra_jumps = jump_proxies.split(",", 2)
           config = connection_options && connection_options[:config]

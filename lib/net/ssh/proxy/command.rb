@@ -4,17 +4,17 @@ require 'net/ssh/proxy/errors'
 require 'net/ssh/ruby_compat'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Proxy
 
       # An implementation of a command proxy. To use it, instantiate it,
       # then pass the instantiated object via the :proxy key to
-      # Net::SSH.start:
+      # Net::BloomfireSSH.start:
       #
       #   require 'net/ssh/proxy/command'
       #
-      #   proxy = Net::SSH::Proxy::Command.new('ssh relay nc %h %p')
-      #   Net::SSH.start('host', 'user', :proxy => proxy) do |ssh|
+      #   proxy = Net::BloomfireSSH::Proxy::Command.new('ssh relay nc %h %p')
+      #   Net::BloomfireSSH.start('host', 'user', :proxy => proxy) do |ssh|
       #     ...
       #   end
       class Command

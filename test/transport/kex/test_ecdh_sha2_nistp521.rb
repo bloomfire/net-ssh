@@ -27,7 +27,7 @@ else
         end
 
         def subject
-          Net::SSH::Transport::Kex::EcdhSHA2NistP521
+          Net::BloomfireSSH::Transport::Kex::EcdhSHA2NistP521
         end
 
         def ecparam

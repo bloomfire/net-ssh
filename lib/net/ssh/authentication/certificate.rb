@@ -1,7 +1,7 @@
 require 'securerandom'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       # Class for representing an SSH certificate.
       #
@@ -77,7 +77,7 @@ module Net
           # ssh-keygen uses 32 bytes of nonce.
           self.nonce = sign_nonce || SecureRandom.random_bytes(32)
           self.signature_key = key
-          self.signature = Net::SSH::Buffer.from(
+          self.signature = Net::BloomfireSSH::Buffer.from(
             :string, key.ssh_signature_type,
             :mstring, key.ssh_do_sign(to_blob_without_signature)
           ).to_s

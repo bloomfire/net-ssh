@@ -27,7 +27,7 @@ module Authentication
           t.return(USERAUTH_FAILURE, :string, "password")
         end
   
-        assert_raises Net::SSH::Authentication::DisallowedMethod do
+        assert_raises Net::BloomfireSSH::Authentication::DisallowedMethod do
           subject.authenticate("ssh-connection", "jamis")
         end
       end
@@ -119,7 +119,7 @@ module Authentication
       private
   
       def subject(options={})
-        @subject ||= Net::SSH::Authentication::Methods::KeyboardInteractive.new(session(options), options)
+        @subject ||= Net::BloomfireSSH::Authentication::Methods::KeyboardInteractive.new(session(options), options)
       end
   
       def reset_subject(options)

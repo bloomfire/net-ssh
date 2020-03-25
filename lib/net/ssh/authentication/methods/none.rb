@@ -2,7 +2,7 @@ require 'net/ssh/errors'
 require 'net/ssh/authentication/methods/abstract'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -20,12 +20,12 @@ module Net
             when USERAUTH_FAILURE
               debug { "none failed" }
               
-              raise Net::SSH::Authentication::DisallowedMethod unless
+              raise Net::BloomfireSSH::Authentication::DisallowedMethod unless
                 message[:authentications].split(/,/).include? 'none'
               
               return false
             else
-              raise Net::SSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
+              raise Net::BloomfireSSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
             end   
             
           end

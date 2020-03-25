@@ -20,7 +20,7 @@ unless ENV['NET_SSH_NO_ED25519']
         #sshopts = '-vvvv -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
         #sh "ssh -i #{dir}/id_rsa_ed25519 #{sshopts} net_ssh_1@localhost echo 'hello'"
   
-        ret = Net::SSH.start("localhost", "net_ssh_1", { keys: "#{dir}/id_rsa_ed25519" }) do |ssh|
+        ret = Net::BloomfireSSH.start("localhost", "net_ssh_1", { keys: "#{dir}/id_rsa_ed25519" }) do |ssh|
           ssh.exec! 'echo "hello from:$USER"'
         end
         assert_equal "hello from:net_ssh_1\n", ret
@@ -38,7 +38,7 @@ unless ENV['NET_SSH_NO_ED25519']
           # TODO: fix bug in net ssh which reads public key even if private key is there
           sh "mv #{dir}/id_rsa_ed25519.pub #{dir}/id_rsa_ed25519.pub.hidden"
   
-          ret = Net::SSH.start("localhost", "net_ssh_1") do |ssh|
+          ret = Net::BloomfireSSH.start("localhost", "net_ssh_1") do |ssh|
             ssh.exec! 'echo "hello from:$USER"'
           end
           assert_equal "hello from:net_ssh_1\n", ret
@@ -58,7 +58,7 @@ unless ENV['NET_SSH_NO_ED25519']
         #sshopts = '-vvvv -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
         #sh "ssh -i #{dir}/id_rsa_ed25519 #{sshopts} net_ssh_1@localhost echo 'hello'"
   
-        ret = Net::SSH.start("localhost", "net_ssh_1", { keys: "#{dir}/id_rsa_ed25519", passphrase:'pwd' }) do |ssh|
+        ret = Net::BloomfireSSH.start("localhost", "net_ssh_1", { keys: "#{dir}/id_rsa_ed25519", passphrase:'pwd' }) do |ssh|
           ssh.exec! 'echo "hello from:$USER"'
         end
         assert_equal "hello from:net_ssh_1\n", ret
@@ -78,7 +78,7 @@ unless ENV['NET_SSH_NO_ED25519']
       Tempfile.open('empty_kh') do |f|
         f.close
         with_sshd_config(config_lines.join("\n")) do
-          ret = Net::SSH.start("localhost", "net_ssh_1", password: 'foopwd', user_known_hosts_file: [f.path]) do |ssh|
+          ret = Net::BloomfireSSH.start("localhost", "net_ssh_1", password: 'foopwd', user_known_hosts_file: [f.path]) do |ssh|
             ssh.exec! "echo 'foo'"
           end
           assert_equal "foo\n", ret

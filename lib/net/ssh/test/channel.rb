@@ -1,9 +1,9 @@
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Test
 
       # A mock channel, used for scripting actions in tests. It wraps a
-      # Net::SSH::Test::Script instance, and delegates to it for the most part.
+      # Net::BloomfireSSH::Test::Script instance, and delegates to it for the most part.
       # This class has little real functionality on its own, but rather acts as
       # a convenience for scripting channel-related activity for later comparison
       # in a unit test.
@@ -17,7 +17,7 @@ module Net
       #     channel.sends_close
       #   end
       class Channel
-        # The Net::SSH::Test::Script instance employed by this mock channel.
+        # The Net::BloomfireSSH::Test::Script instance employed by this mock channel.
         attr_reader :script
     
         # Sets the local-id of this channel object (the id assigned by the client).
@@ -27,7 +27,7 @@ module Net
         attr_writer :remote_id
     
         # Creates a new Test::Channel instance on top of the given +script+ (which
-        # must be a Net::SSH::Test::Script instance).
+        # must be a Net::BloomfireSSH::Test::Script instance).
         def initialize(script)
           @script = script
           @local_id = @remote_id = nil
@@ -35,14 +35,14 @@ module Net
     
         # Returns the local (client-assigned) id for this channel, or a Proc object
         # that will return the local-id later if the local id has not yet been set.
-        # (See Net::SSH::Test::Packet#instantiate!.)
+        # (See Net::BloomfireSSH::Test::Packet#instantiate!.)
         def local_id
           @local_id || Proc.new { @local_id or raise "local-id has not been set yet!" }
         end
     
         # Returns the remote (server-assigned) id for this channel, or a Proc object
         # that will return the remote-id later if the remote id has not yet been set.
-        # (See Net::SSH::Test::Packet#instantiate!.)
+        # (See Net::BloomfireSSH::Test::Packet#instantiate!.)
         def remote_id
           @remote_id || Proc.new { @remote_id or raise "remote-id has not been set yet!" }
         end

@@ -19,7 +19,7 @@ unless ENV['NET_SSH_NO_ED25519']
         # sshopts = '-vvvv -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
         # sh "ssh -i #{dir}/id_rsa_ed25519 #{sshopts} net_ssh_1@localhost echo 'hello'"
   
-        ret = Net::SSH.start("localhost", "net_ssh_1", keys: "#{dir}/id_rsa_ed25519") do |ssh|
+        ret = Net::BloomfireSSH.start("localhost", "net_ssh_1", keys: "#{dir}/id_rsa_ed25519") do |ssh|
           ssh.exec! 'echo "hello from:$USER"'
         end
         assert_equal "hello from:net_ssh_1\n", ret

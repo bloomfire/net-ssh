@@ -13,14 +13,14 @@ require 'net/ssh/verifiers/always'
 require 'net/ssh/verifiers/never'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Transport
 
       # The transport layer represents the lowest level of the SSH protocol, and
       # implements basic message exchanging and protocol initialization. It will
       # never be instantiated directly (unless you really know what you're about),
       # but will instead be created for you automatically when you create a new
-      # SSH session via Net::SSH.start.
+      # SSH session via Net::BloomfireSSH.start.
       class Session
         include Loggable
         include Constants
@@ -89,7 +89,7 @@ module Net
           @algorithms.start
           wait { algorithms.initialized? }
         rescue Errno::ETIMEDOUT
-          raise Net::SSH::ConnectionTimeout
+          raise Net::BloomfireSSH::ConnectionTimeout
         end
 
         def host_keys
@@ -108,7 +108,7 @@ module Net
 
             peer_ip = socket.peer_ip
 
-            if peer_ip != Net::SSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP &&
+            if peer_ip != Net::BloomfireSSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP &&
                peer_ip != host
               string2 = peer_ip
               string2 = "[#{string2}]:#{port}" if port != DEFAULT_PORT
@@ -142,7 +142,7 @@ module Net
         # Returns a new service_request packet for the given service name, ready
         # for sending to the server.
         def service_request(service)
-          Net::SSH::Buffer.from(:byte, SERVICE_REQUEST, :string, service)
+          Net::BloomfireSSH::Buffer.from(:byte, SERVICE_REQUEST, :string, service)
         end
 
         # Requests a rekey operation, and blocks until the operation completes.
@@ -195,7 +195,7 @@ module Net
 
             case packet.type
             when DISCONNECT
-              raise Net::SSH::Disconnect, "disconnected: #{packet[:description]} (#{packet[:reason_code]})"
+              raise Net::BloomfireSSH::Disconnect, "disconnected: #{packet[:description]} (#{packet[:reason_code]})"
 
             when IGNORE
               debug { "IGNORE packet received: #{packet[:data].inspect}" }
@@ -295,7 +295,7 @@ module Net
         # the parameter.
         #
         # Usually, the argument is a symbol like `:never` which corresponds to
-        # a verifier, like `::Net::SSH::Verifiers::Never`.
+        # a verifier, like `::Net::BloomfireSSH::Verifiers::Never`.
         #
         # - :never (very insecure)
         # - :accept_new_or_local_tunnel (insecure)
@@ -311,24 +311,24 @@ module Net
           case verifier
           when false
             Kernel.warn('verify_host_key: false is deprecated, use :never')
-            Net::SSH::Verifiers::Never.new
+            Net::BloomfireSSH::Verifiers::Never.new
           when :never then
-            Net::SSH::Verifiers::Never.new
+            Net::BloomfireSSH::Verifiers::Never.new
           when true
             Kernel.warn('verify_host_key: true is deprecated, use :accept_new_or_local_tunnel')
-            Net::SSH::Verifiers::AcceptNewOrLocalTunnel.new
+            Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel.new
           when :accept_new_or_local_tunnel, nil then
-            Net::SSH::Verifiers::AcceptNewOrLocalTunnel.new
+            Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel.new
           when :very
             Kernel.warn('verify_host_key: :very is deprecated, use :accept_new')
-            Net::SSH::Verifiers::AcceptNew.new
+            Net::BloomfireSSH::Verifiers::AcceptNew.new
           when :accept_new then
-            Net::SSH::Verifiers::AcceptNew.new
+            Net::BloomfireSSH::Verifiers::AcceptNew.new
           when :secure then
             Kernel.warn('verify_host_key: :secure is deprecated, use :always')
-            Net::SSH::Verifiers::Always.new
+            Net::BloomfireSSH::Verifiers::Always.new
           when :always then
-            Net::SSH::Verifiers::Always.new
+            Net::BloomfireSSH::Verifiers::Always.new
           else
             if verifier.respond_to?(:verify)
               if verifier.respond_to?(:verify_signature)

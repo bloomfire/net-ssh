@@ -5,7 +5,7 @@ require 'net/ssh/transport/openssl'
 require 'net/ssh/transport/constants'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Transport
       module Kex
 
@@ -102,7 +102,7 @@ module Net
           # Build the signature buffer to use when verifying a signature from
           # the server.
           def build_signature_buffer(result)
-            response = Net::SSH::Buffer.new
+            response = Net::BloomfireSSH::Buffer.new
             response.write_string data[:client_version_string],
                                   data[:server_version_string],
                                   data[:client_algorithm_packet],
@@ -147,24 +147,24 @@ module Net
             init, reply = get_message_types
 
             # send the KEXDH_INIT message
-            buffer = Net::SSH::Buffer.from(:byte, init, :bignum, dh.pub_key)
+            buffer = Net::BloomfireSSH::Buffer.from(:byte, init, :bignum, dh.pub_key)
             connection.send_message(buffer)
 
             # expect the KEXDH_REPLY message
             buffer = connection.next_message
-            raise Net::SSH::Exception, "expected REPLY" unless buffer.type == reply
+            raise Net::BloomfireSSH::Exception, "expected REPLY" unless buffer.type == reply
 
             result = Hash.new
 
             result[:key_blob] = buffer.read_string
-            result[:server_key] = Net::SSH::Buffer.new(result[:key_blob]).read_key
+            result[:server_key] = Net::BloomfireSSH::Buffer.new(result[:key_blob]).read_key
             result[:server_dh_pubkey] = buffer.read_bignum
             result[:shared_secret] = OpenSSL::BN.new(dh.compute_key(result[:server_dh_pubkey]), 2)
 
-            sig_buffer = Net::SSH::Buffer.new(buffer.read_string)
+            sig_buffer = Net::BloomfireSSH::Buffer.new(buffer.read_string)
             sig_type = sig_buffer.read_string
             if sig_type != algorithms.host_key_format
-              raise Net::SSH::Exception,
+              raise Net::BloomfireSSH::Exception,
                 "host key algorithm mismatch for signature " +
                 "'#{sig_type}' != '#{algorithms.host_key_format}'"
             end
@@ -174,31 +174,31 @@ module Net
           end
 
           # Verify that the given key is of the expected type, and that it
-          # really is the key for the session's host. Raise Net::SSH::Exception
+          # really is the key for the session's host. Raise Net::BloomfireSSH::Exception
           # if it is not.
           def verify_server_key(key) #:nodoc:
             if key.ssh_type != algorithms.host_key
-              raise Net::SSH::Exception,
+              raise Net::BloomfireSSH::Exception,
                 "host key algorithm mismatch " +
                 "'#{key.ssh_type}' != '#{algorithms.host_key}'"
             end
 
             blob, fingerprint = generate_key_fingerprint(key)
 
-            raise Net::SSH::Exception, "host key verification failed" unless connection.host_key_verifier.verify(key: key, key_blob: blob, fingerprint: fingerprint, session: connection)
+            raise Net::BloomfireSSH::Exception, "host key verification failed" unless connection.host_key_verifier.verify(key: key, key_blob: blob, fingerprint: fingerprint, session: connection)
           end
 
           def generate_key_fingerprint(key)
-            blob = Net::SSH::Buffer.from(:key, key).to_s
+            blob = Net::BloomfireSSH::Buffer.from(:key, key).to_s
 
-            fingerprint = Net::SSH::Authentication::PubKeyFingerprint.fingerprint(blob, @connection.options[:fingerprint_hash] || 'SHA256')
+            fingerprint = Net::BloomfireSSH::Authentication::PubKeyFingerprint.fingerprint(blob, @connection.options[:fingerprint_hash] || 'SHA256')
 
             [blob, fingerprint]
           rescue ::Exception => e
             [nil, "(could not generate fingerprint: #{e.message})"]
           end
 
-          # Verify the signature that was received. Raise Net::SSH::Exception
+          # Verify the signature that was received. Raise Net::BloomfireSSH::Exception
           # if the signature could not be verified. Otherwise, return the new
           # session-id.
           def verify_signature(result) #:nodoc:
@@ -206,7 +206,7 @@ module Net
 
             hash = @digester.digest(response.to_s)
 
-            raise Net::SSH::Exception, "could not verify server signature" unless connection.host_key_verifier.verify_signature { result[:server_key].ssh_do_verify(result[:server_sig], hash) }
+            raise Net::BloomfireSSH::Exception, "could not verify server signature" unless connection.host_key_verifier.verify_signature { result[:server_key].ssh_do_verify(result[:server_sig], hash) }
 
             return hash
           end
@@ -215,13 +215,13 @@ module Net
           # reply.
           def confirm_newkeys #:nodoc:
             # send own NEWKEYS message first (the wodSSHServer won't send first)
-            response = Net::SSH::Buffer.new
+            response = Net::BloomfireSSH::Buffer.new
             response.write_byte(NEWKEYS)
             connection.send_message(response)
 
             # wait for the server's NEWKEYS message
             buffer = connection.next_message
-            raise Net::SSH::Exception, "expected NEWKEYS" unless buffer.type == NEWKEYS
+            raise Net::BloomfireSSH::Exception, "expected NEWKEYS" unless buffer.type == NEWKEYS
           end
         end
 

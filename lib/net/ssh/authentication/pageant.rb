@@ -22,7 +22,7 @@ end
 require 'net/ssh/errors'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Authentication
 
       # This module encapsulates the implementation of a socket factory that
@@ -404,12 +404,12 @@ module Net
             @win = Win.FindWindow("Pageant", "Pageant")
     
             if @win.to_i == 0
-              raise Net::SSH::Exception,
+              raise Net::BloomfireSSH::Exception,
                 "pageant process not running"
             end
     
-            @input_buffer = Net::SSH::Buffer.new
-            @output_buffer = Net::SSH::Buffer.new
+            @input_buffer = Net::BloomfireSSH::Buffer.new
+            @output_buffer = Net::BloomfireSSH::Buffer.new
           end
     
           # Forwards the data to #send_query, ignoring any arguments after
@@ -456,7 +456,7 @@ module Net
                                             AGENT_MAX_MSGLEN, mapname)
     
             if filemap == 0 || filemap == Win::INVALID_HANDLE_VALUE
-              raise Net::SSH::Exception,
+              raise Net::BloomfireSSH::Exception,
                 "Creation of file mapping failed with error: #{Win.GetLastError}"
             end
     
@@ -464,7 +464,7 @@ module Net
                                     0)
     
             if ptr.nil? || ptr.null?
-              raise Net::SSH::Exception, "Mapping of file failed"
+              raise Net::BloomfireSSH::Exception, "Mapping of file failed"
             end
     
             Win.set_ptr_data(ptr, query)
@@ -481,7 +481,7 @@ module Net
               retlen = 4 + ptr.to_s(4).unpack("N")[0]
               res = ptr.to_s(retlen)
             else
-              raise Net::SSH::Exception, "Message failed with error: #{Win.GetLastError}"
+              raise Net::BloomfireSSH::Exception, "Message failed with error: #{Win.GetLastError}"
             end
     
             return res

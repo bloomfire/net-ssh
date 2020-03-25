@@ -15,53 +15,53 @@ require 'net/ssh/prompt'
 
 module Net
 
-  # Net::SSH is a library for interacting, programmatically, with remote
+  # Net::BloomfireSSH is a library for interacting, programmatically, with remote
   # processes via the SSH2 protocol. Sessions are always initiated via
-  # Net::SSH.start. From there, a program interacts with the new SSH session
-  # via the convenience methods on Net::SSH::Connection::Session, by opening
-  # and interacting with new channels (Net::SSH::Connection:Session#open_channel
-  # and Net::SSH::Connection::Channel), or by forwarding local and/or
-  # remote ports through the connection (Net::SSH::Service::Forward).
+  # Net::BloomfireSSH.start. From there, a program interacts with the new SSH session
+  # via the convenience methods on Net::BloomfireSSH::Connection::Session, by opening
+  # and interacting with new channels (Net::BloomfireSSH::Connection:Session#open_channel
+  # and Net::BloomfireSSH::Connection::Channel), or by forwarding local and/or
+  # remote ports through the connection (Net::BloomfireSSH::Service::Forward).
   #
   # The SSH protocol is very event-oriented. Requests are sent from the client
   # to the server, and are answered asynchronously. This gives great flexibility
   # (since clients can have multiple requests pending at a time), but it also
-  # adds complexity. Net::SSH tries to manage this complexity by providing
-  # some simpler methods of synchronous communication (see Net::SSH::Connection::Session#exec!).
+  # adds complexity. Net::BloomfireSSH tries to manage this complexity by providing
+  # some simpler methods of synchronous communication (see Net::BloomfireSSH::Connection::Session#exec!).
   #
   # In general, though, and if you want to do anything more complicated than
   # simply executing commands and capturing their output, you'll need to use
-  # channels (Net::SSH::Connection::Channel) to build state machines that are
-  # executed while the event loop runs (Net::SSH::Connection::Session#loop).
+  # channels (Net::BloomfireSSH::Connection::Channel) to build state machines that are
+  # executed while the event loop runs (Net::BloomfireSSH::Connection::Session#loop).
   #
-  # Net::SSH::Connection::Session and Net::SSH::Connection::Channel have more
+  # Net::BloomfireSSH::Connection::Session and Net::BloomfireSSH::Connection::Channel have more
   # information about this technique.
   #
   # = "Um, all I want to do is X, just show me how!"
   #
   # == X == "execute a command and capture the output"
   #
-  #   Net::SSH.start("host", "user", password: "password") do |ssh|
+  #   Net::BloomfireSSH.start("host", "user", password: "password") do |ssh|
   #     result = ssh.exec!("ls -l")
   #     puts result
   #   end
   #
   # == X == "forward connections on a local port to a remote host"
   #
-  #   Net::SSH.start("host", "user", password: "password") do |ssh|
+  #   Net::BloomfireSSH.start("host", "user", password: "password") do |ssh|
   #     ssh.forward.local(1234, "www.google.com", 80)
   #     ssh.loop { true }
   #   end
   #
   # == X == "forward connections on a remote port to the local host"
   #
-  #   Net::SSH.start("host", "user", password: "password") do |ssh|
+  #   Net::BloomfireSSH.start("host", "user", password: "password") do |ssh|
   #     ssh.forward.remote(80, "www.google.com", 1234)
   #     ssh.loop { true }
   #   end
-  module SSH
-    # This is the set of options that Net::SSH.start recognizes. See
-    # Net::SSH.start for a description of each option.
+  module BloomfireSSH
+    # This is the set of options that Net::BloomfireSSH.start recognizes. See
+    # Net::BloomfireSSH.start for a description of each option.
     VALID_OPTIONS = %i[
       auth_methods bind_address compression compression_level config
       encryption forward_agent hmac host_key remote_user
@@ -79,10 +79,10 @@ module Net
     # The standard means of starting a new SSH connection. When used with a
     # block, the connection will be closed when the block terminates, otherwise
     # the connection will just be returned. The yielded (or returned) value
-    # will be an instance of Net::SSH::Connection::Session (q.v.). (See also
-    # Net::SSH::Connection::Channel and Net::SSH::Service::Forward.)
+    # will be an instance of Net::BloomfireSSH::Connection::Session (q.v.). (See also
+    # Net::BloomfireSSH::Connection::Channel and Net::BloomfireSSH::Service::Forward.)
     #
-    #   Net::SSH.start("host", "user") do |ssh|
+    #   Net::BloomfireSSH.start("host", "user") do |ssh|
     #     ssh.exec! "cp /some/file /another/location"
     #     hostname = ssh.exec!("hostname")
     #
@@ -135,7 +135,7 @@ module Net
     #   "alias", similarly to adding an entry in /etc/hosts but without needing
     #   to modify /etc/hosts.
     # * :keepalive => set to +true+ to send a keepalive packet to the SSH server
-    #   when there's no traffic between the SSH server and Net::SSH client for
+    #   when there's no traffic between the SSH server and Net::BloomfireSSH client for
     #   the keepalive_interval seconds. Defaults to +false+.
     # * :keepalive_interval => the interval seconds for keepalive.
     #   Defaults to +300+ seconds.
@@ -166,7 +166,7 @@ module Net
     # * :password => the password to use to login
     # * :port => the port to use when connecting to the remote host
     # * :properties => a hash of key/value pairs to add to the new connection's
-    #   properties (see Net::SSH::Connection::Session#properties)
+    #   properties (see Net::BloomfireSSH::Connection::Session#properties)
     # * :proxy => a proxy instance (see Proxy) to use when connecting
     # * :rekey_blocks_limit => the max number of blocks to process before rekeying
     # * :rekey_limit => the max number of bytes to process before rekeying
@@ -192,17 +192,17 @@ module Net
     # * :number_of_password_prompts => Number of prompts for the password
     #   authentication method defaults to 3 set to 0 to disable prompt for
     #   password auth method
-    # * :password_prompt => a custom prompt object with ask method. See Net::SSH::Prompt
+    # * :password_prompt => a custom prompt object with ask method. See Net::BloomfireSSH::Prompt
     #
     # * :agent_socket_factory => enables the user to pass a lambda/block that will serve as the socket factory
-    #    Net::SSH.start(host,user,agent_socket_factory: ->{ UNIXSocket.open('/foo/bar') })
+    #    Net::BloomfireSSH.start(host,user,agent_socket_factory: ->{ UNIXSocket.open('/foo/bar') })
     #    example: ->{ UNIXSocket.open('/foo/bar')}
     # * :verify_host_key => specify how strict host-key verification should be.
     #   In order of increasing strictness:
-    #   * :never (very insecure) ::Net::SSH::Verifiers::Never
-    #   * :accept_new_or_local_tunnel (insecure) ::Net::SSH::Verifiers::AcceptNewOrLocalTunnel
-    #   * :accept_new (insecure) ::Net::SSH::Verifiers::AcceptNew
-    #   * :always (secure) ::Net::SSH::Verifiers::Always
+    #   * :never (very insecure) ::Net::BloomfireSSH::Verifiers::Never
+    #   * :accept_new_or_local_tunnel (insecure) ::Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel
+    #   * :accept_new (insecure) ::Net::BloomfireSSH::Verifiers::AcceptNew
+    #   * :always (secure) ::Net::BloomfireSSH::Verifiers::Always
     #   You can also provide an own Object which responds to +verify+. The argument
     #   given to +verify+ is a hash consisting of the +:key+, the +:key_blob+,
     #   the +:fingerprint+ and the +:session+. Returning true accepts the host key,
@@ -272,15 +272,15 @@ module Net
     # be a file name (or array of file names) of SSH configuration file(s)
     # to read.
     #
-    # See Net::SSH::Config for the full description of all supported options.
+    # See Net::BloomfireSSH::Config for the full description of all supported options.
     def self.configuration_for(host, use_ssh_config)
       files = case use_ssh_config
-              when true then Net::SSH::Config.expandable_default_files
+              when true then Net::BloomfireSSH::Config.expandable_default_files
               when false, nil then return {}
               else Array(use_ssh_config)
               end
 
-      Net::SSH::Config.for(host, files)
+      Net::BloomfireSSH::Config.for(host, files)
     end
 
     def self.assign_defaults(options)
@@ -300,7 +300,7 @@ module Net
       invalid_option_values = [nil,[nil]]
       unless (options.values & invalid_option_values).empty?
         nil_options = options.select { |_k,v| invalid_option_values.include?(v) }.map(&:first)
-        Kernel.warn "#{caller_locations(2, 1)[0]}: Passing nil, or [nil] to Net::SSH.start is deprecated for keys: #{nil_options.join(', ')}"
+        Kernel.warn "#{caller_locations(2, 1)[0]}: Passing nil, or [nil] to Net::BloomfireSSH.start is deprecated for keys: #{nil_options.join(', ')}"
       end
     end
     private_class_method :_sanitize_options

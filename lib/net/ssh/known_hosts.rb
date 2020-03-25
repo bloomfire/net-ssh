@@ -5,7 +5,7 @@ require 'net/ssh/buffer'
 require 'net/ssh/authentication/ed25519_loader'
 
 module Net
-  module SSH
+  module BloomfireSSH
 
     # Represents the result of a search in known hosts
     # see search_for
@@ -38,7 +38,7 @@ module Net
     # matching keys. This is used to implement host-key verification, as well as
     # to determine what key a user prefers to use for a given host.
     #
-    # This is used internally by Net::SSH, and will never need to be used directly
+    # This is used internally by Net::BloomfireSSH, and will never need to be used directly
     # by consumers of the library.
     class KnownHosts
       if defined?(OpenSSL::PKey::EC)
@@ -49,7 +49,7 @@ module Net
       else
         SUPPORTED_TYPE = %w[ssh-rsa ssh-dss]
       end
-      SUPPORTED_TYPE.push('ssh-ed25519') if Net::SSH::Authentication::ED25519Loader::LOADED
+      SUPPORTED_TYPE.push('ssh-ed25519') if Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
 
       class <<self
         # Searches all known host files (see KnownHosts.hostfiles) for all keys
@@ -151,7 +151,7 @@ module Net
 
             scanner.skip(/\s*/)
             blob = scanner.rest.unpack("m*").first
-            keys << Net::SSH::Buffer.new(blob).read_key
+            keys << Net::BloomfireSSH::Buffer.new(blob).read_key
           end
         end
 
@@ -189,7 +189,7 @@ module Net
       # instance), an exception will be raised.
       def add(host, key)
         File.open(source, "a") do |file|
-          blob = [Net::SSH::Buffer.from(:key, key).to_s].pack("m*").gsub(/\s/, "")
+          blob = [Net::BloomfireSSH::Buffer.from(:key, key).to_s].pack("m*").gsub(/\s/, "")
           file.puts "#{host} #{key.ssh_type} #{blob}"
         end
       end

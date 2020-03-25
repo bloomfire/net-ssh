@@ -38,7 +38,7 @@ module Authentication
         transport.expect do |t, packet|
           assert_equal USERAUTH_REQUEST, packet.type
           assert verify_userauth_request_packet(packet, keys.first, false)
-          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::SSH::Buffer.from(:key, keys.first))
+          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::BloomfireSSH::Buffer.from(:key, keys.first))
 
           t.expect do |t2,packet2|
             assert_equal USERAUTH_REQUEST, packet2.type
@@ -48,7 +48,7 @@ module Authentication
           end
         end
 
-        assert_raises Net::SSH::Authentication::DisallowedMethod do
+        assert_raises Net::BloomfireSSH::Authentication::DisallowedMethod do
           subject.authenticate("ssh-connection", "jamis")
         end
       end
@@ -60,7 +60,7 @@ module Authentication
         transport.expect do |t, packet|
           assert_equal USERAUTH_REQUEST, packet.type
           assert verify_userauth_request_packet(packet, keys.first, false)
-          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::SSH::Buffer.from(:key, keys.first))
+          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::BloomfireSSH::Buffer.from(:key, keys.first))
 
           t.expect do |t2,packet2|
             assert_equal USERAUTH_REQUEST, packet2.type
@@ -71,7 +71,7 @@ module Authentication
             t2.expect do |t3, packet3|
               assert_equal USERAUTH_REQUEST, packet3.type
               assert verify_userauth_request_packet(packet3, keys.last, false)
-              t3.return(USERAUTH_PK_OK, :string, keys.last.ssh_type, :string, Net::SSH::Buffer.from(:key, keys.last))
+              t3.return(USERAUTH_PK_OK, :string, keys.last.ssh_type, :string, Net::BloomfireSSH::Buffer.from(:key, keys.last))
 
               t3.expect do |t4,packet4|
                 assert_equal USERAUTH_REQUEST, packet4.type
@@ -92,7 +92,7 @@ module Authentication
         transport.expect do |t, packet|
           assert_equal USERAUTH_REQUEST, packet.type
           assert verify_userauth_request_packet(packet, keys.first, false)
-          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::SSH::Buffer.from(:key, keys.first))
+          t.return(USERAUTH_PK_OK, :string, keys.first.ssh_type, :string, Net::BloomfireSSH::Buffer.from(:key, keys.first))
 
           t.expect do |t2,packet2|
             assert_equal USERAUTH_REQUEST, packet2.type
@@ -110,7 +110,7 @@ module Authentication
       def signature_parameters(key)
         Proc.new do |given_key, data|
           next false unless given_key.to_blob == key.to_blob
-          buffer = Net::SSH::Buffer.new(data)
+          buffer = Net::BloomfireSSH::Buffer.new(data)
           buffer.read_string == "abcxyz123"      && # session-id
           buffer.read_byte   == USERAUTH_REQUEST && # type
           verify_userauth_request_packet(buffer, key, true)
@@ -141,7 +141,7 @@ module Authentication
 
       def subject(options={})
         options[:key_manager] = key_manager(options) unless options.key?(:key_manager)
-        @subject ||= Net::SSH::Authentication::Methods::Publickey.new(session(options), options)
+        @subject ||= Net::BloomfireSSH::Authentication::Methods::Publickey.new(session(options), options)
       end
     end
   end

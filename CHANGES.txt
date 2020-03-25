@@ -123,7 +123,7 @@
 
 === 4.0.0.beta3
 
- * Fix Net::SSH::Disconnect exceptions when channels are closed cleanly [Miklos Fazekas, #421, #422]
+ * Fix Net::BloomfireSSH::Disconnect exceptions when channels are closed cleanly [Miklos Fazekas, #421, #422]
 
 === 4.0.0.beta2
 
@@ -174,14 +174,14 @@
 * calling close on a not opened channel marks the channel for close [Miklos Fazekas]
 * read keepalive configuration from ssh config files [Miklos Fazekas]
 * send client version on hadshake before waiting for server to reduce handshake time [Miklos Fazekas]
-* allow custom Net::SSH::KnownHosts implementations [Jean Boussier]
+* allow custom Net::BloomfireSSH::KnownHosts implementations [Jean Boussier]
 * memoize known host so we only search it once per session [Jean Boussier, Miklos Fazekas]
 
 === 3.0.2
 === 3.0.2.rc1
 
 * fixed rare WaitWritable error with proxy commands [Miklos Fazkas, Andre Meij]]
-* if Net::SSH.start user is nil and config has no entry we default to Etc.getlogin
+* if Net::BloomfireSSH.start user is nil and config has no entry we default to Etc.getlogin
 * Bugfix: CHANNEL_CLOSE was sent before draining ouput buffer #280 [Christopher F. Auston]
 
 === 3.0.1
@@ -189,7 +189,7 @@
 
 * Breaking change from 2.* series: exec! without block now returns empty string instread of nil if command has no output [https://github.com/net-ssh/net-ssh/pull/273]
 * Support remote_user as %r in proxy commands [Dominic Scheirlinck]
-* Raise Net::SSH::ConnectionTimeout from connection timeout [Carl Hoerberg]
+* Raise Net::BloomfireSSH::ConnectionTimeout from connection timeout [Carl Hoerberg]
 
 === 3.0.0.rc1
 
@@ -295,7 +295,7 @@
 
 * Fix for 'Could not parse PKey: no start line' error on private keys with passphrases (issue #101) [metametaclass]
 * Automatically forward environment variables defined in OpenSSH config files [fnordfish]
-* Guard against socket.gets being nil in Net::SSH::Proxy::HTTP [krishicks]
+* Guard against socket.gets being nil in Net::BloomfireSSH::Proxy::HTTP [krishicks]
 * Implemented experimental keepalive feature [noric]
 
 
@@ -309,7 +309,7 @@
 === 2.6.7 / 11 Apr 2013
 
 * Decreased default packet size to 32768 as described in RFC 4253 [Olipro]
-* Added max_pkt_size and max_win_size options to Net::SSH.start [Olipro]
+* Added max_pkt_size and max_win_size options to Net::BloomfireSSH.start [Olipro]
 
 
 === 2.6.6 / 03 Mar 2013
@@ -334,8 +334,8 @@
 
 === 2.6.2 / 22 Nov 2012
 
-* Net::SSH.start now returns result of block [mhuffnagle]
-* Add stderr handling to Net::SSH::Test [ohrite]
+* Net::BloomfireSSH.start now returns result of block [mhuffnagle]
+* Add stderr handling to Net::BloomfireSSH::Test [ohrite]
 * Fix Invalid key size in JRuby [ohrite]
 
 
@@ -356,7 +356,7 @@
 
 === 2.5.2 / 25 May 2012
 
-* Fix for Net::SSH::KnownHosts::SUPPORTED_TYPE [Marco Sandrini]
+* Fix for Net::BloomfireSSH::KnownHosts::SUPPORTED_TYPE [Marco Sandrini]
 
 === 2.5.1 / 24 May 2012
 
@@ -418,7 +418,7 @@
 
 === 2.1.2 / 1 Mar 2011
 
-* Fix for Net::SSH Continues to attempt authentication when notified it is not allowed [Eric Hodel]
+* Fix for Net::BloomfireSSH Continues to attempt authentication when notified it is not allowed [Eric Hodel]
     (see: http://net-ssh.lighthouseapp.com/projects/36253-net-ssh/tickets/26)
 * Fix for transport won't be closed if authentication fails [Patrick Marchi]
 
@@ -528,7 +528,7 @@ buffer becomes empty.
 
 === 2.0.10 / 4 Feb 2009
 
-* Added Net::SSH.configuration_for to make it easier to query the SSH configuration file(s) [Jamis Buck]
+* Added Net::BloomfireSSH.configuration_for to make it easier to query the SSH configuration file(s) [Jamis Buck]
 
 
 === 2.0.9 / 1 Feb 2009
@@ -587,7 +587,7 @@ buffer becomes empty.
 
 === 2.0.3 / 27 Jun 2008
 
-* Make Net::SSH::Version comparable [Brian Candler]
+* Make Net::BloomfireSSH::Version comparable [Brian Candler]
 
 * Fix errors in port forwarding when a channel could not be opened due to a typo in the exception name [Matthew Todd]
 
@@ -608,7 +608,7 @@ buffer becomes empty.
 
 === 2.0.1 / 5 May 2008
 
-* Teach Net::SSH about a handful of default key names [Jamis Buck]
+* Teach Net::BloomfireSSH about a handful of default key names [Jamis Buck]
 
 
 === 2.0.0 / 1 May 2008
@@ -636,9 +636,9 @@ buffer becomes empty.
 
 * Partial support for ~/.ssh/config (and related) SSH configuration files [Daniel J. Berger, Jamis Buck]
 
-* Added Net::SSH::Test to facilitate testing complex SSH state machines [Jamis Buck]
+* Added Net::BloomfireSSH::Test to facilitate testing complex SSH state machines [Jamis Buck]
 
-* Reworked Net::SSH::Prompt to use conditionally-selected modules [Jamis Buck, suggested by James Rosen]
+* Reworked Net::BloomfireSSH::Prompt to use conditionally-selected modules [Jamis Buck, suggested by James Rosen]
 
 * Added Channel#eof? and Channel#eof! [Jamis Buck]
 
@@ -647,4 +647,4 @@ buffer becomes empty.
 
 === 2.0 Preview Release 1 (1.99.0) / 21 Aug 2007
 
-* First preview release of Net::SSH v2
+* First preview release of Net::BloomfireSSH v2

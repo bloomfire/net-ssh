@@ -1,7 +1,7 @@
 require 'net/ssh/authentication/methods/abstract'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -52,12 +52,12 @@ module Net
             when USERAUTH_FAILURE
               info { "hostbased failed (#{identity.fingerprint})" }
 
-              raise Net::SSH::Authentication::DisallowedMethod unless
+              raise Net::BloomfireSSH::Authentication::DisallowedMethod unless
                 message[:authentications].split(/,/).include? 'hostbased'
 
               return false
             else
-              raise Net::SSH::Exception, "unexpected server response to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
+              raise Net::BloomfireSSH::Exception, "unexpected server response to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
             end
           end
 

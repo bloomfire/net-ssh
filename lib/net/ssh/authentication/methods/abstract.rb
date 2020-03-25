@@ -4,7 +4,7 @@ require 'net/ssh/loggable'
 require 'net/ssh/authentication/constants'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -46,7 +46,7 @@ module Net
           # must be either boolean values or strings, and are tacked onto the end
           # of the packet. The new packet is returned, ready for sending.
           def userauth_request(username, next_service, auth_method, *others)
-            buffer = Net::SSH::Buffer.from(:byte, USERAUTH_REQUEST,
+            buffer = Net::BloomfireSSH::Buffer.from(:byte, USERAUTH_REQUEST,
               :string, username, :string, next_service, :string, auth_method)
 
             others.each do |value|

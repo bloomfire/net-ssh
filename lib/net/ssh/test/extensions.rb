@@ -7,16 +7,16 @@ require 'net/ssh/transport/constants'
 require 'net/ssh/transport/packet_stream'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Test
 
       # A collection of modules used to extend/override the default behavior of
-      # Net::SSH internals for ease of testing. As a consumer of Net::SSH, you'll
+      # Net::BloomfireSSH internals for ease of testing. As a consumer of Net::BloomfireSSH, you'll
       # never need to use this directly--they're all used under the covers by
-      # the Net::SSH::Test system.
+      # the Net::BloomfireSSH::Test system.
       module Extensions
     
-        # An extension to Net::SSH::BufferedIo (assumes that the underlying IO
+        # An extension to Net::BloomfireSSH::BufferedIo (assumes that the underlying IO
         # is actually a StringIO). Facilitates unit testing.
         module BufferedIo
           # Returns +true+ if the position in the stream is less than the total
@@ -35,7 +35,7 @@ module Net
           alias select_for_error? select_for_error
         end
     
-        # An extension to Net::SSH::Transport::PacketStream (assumes that the
+        # An extension to Net::BloomfireSSH::Transport::PacketStream (assumes that the
         # underlying IO is actually a StringIO). Facilitates unit testing.
         module PacketStream
           include BufferedIo # make sure we get the extensions here, too
@@ -66,7 +66,7 @@ module Net
             return true
           end
     
-          # The testing version of Net::SSH::Transport::PacketStream#available_for_read?.
+          # The testing version of Net::BloomfireSSH::Transport::PacketStream#available_for_read?.
           # Returns true if there is data pending to be read. Otherwise calls #idle!.
           def test_available_for_read?
             return true if select_for_read?
@@ -74,31 +74,31 @@ module Net
             false
           end
     
-          # The testing version of Net::SSH::Transport::PacketStream#enqueued_packet.
-          # Simply calls Net::SSH::Test::Script#process on the packet.
+          # The testing version of Net::BloomfireSSH::Transport::PacketStream#enqueued_packet.
+          # Simply calls Net::BloomfireSSH::Test::Script#process on the packet.
           def test_enqueue_packet(payload)
-            packet = Net::SSH::Buffer.new(payload.to_s)
+            packet = Net::BloomfireSSH::Buffer.new(payload.to_s)
             script.process(packet)
           end
     
-          # The testing version of Net::SSH::Transport::PacketStream#poll_next_packet.
+          # The testing version of Net::BloomfireSSH::Transport::PacketStream#poll_next_packet.
           # Reads the next available packet from the IO object and returns it.
           def test_poll_next_packet
             return nil if available <= 0
-            packet = Net::SSH::Buffer.new(read_available(4))
+            packet = Net::BloomfireSSH::Buffer.new(read_available(4))
             length = packet.read_long
-            Net::SSH::Packet.new(read_available(length))
+            Net::BloomfireSSH::Packet.new(read_available(length))
           end
         end
     
-        # An extension to Net::SSH::Connection::Channel. Facilitates unit testing.
+        # An extension to Net::BloomfireSSH::Connection::Channel. Facilitates unit testing.
         module Channel
           def self.included(base) #:nodoc:
             base.send :alias_method, :send_data_for_real, :send_data
             base.send :alias_method, :send_data, :send_data_for_test
           end
     
-          # The testing version of Net::SSH::Connection::Channel#send_data. Calls
+          # The testing version of Net::BloomfireSSH::Connection::Channel#send_data. Calls
           # the original implementation, and then immediately enqueues the data for
           # output so that scripted sends are properly interpreted as discrete
           # (rather than concatenated) data packets.
@@ -109,7 +109,7 @@ module Net
         end
     
         # An extension to the built-in ::IO class. Simply redefines IO.select
-        # so that it can be scripted in Net::SSH unit tests.
+        # so that it can be scripted in Net::BloomfireSSH unit tests.
         module IO
           def self.included(base) #:nodoc:
             base.extend(ClassMethods)
@@ -141,9 +141,9 @@ module Net
     
             # The testing version of ::IO.select. Assumes that all readers,
             # writers, and errors arrays are either nil, or contain only objects
-            # that mix in Net::SSH::Test::Extensions::BufferedIo.
+            # that mix in Net::BloomfireSSH::Test::Extensions::BufferedIo.
             def select_for_test(readers=nil, writers=nil, errors=nil, wait=nil)
-              return select_for_real(readers, writers, errors, wait) unless Net::SSH::Test::Extensions::IO.extension_enabled?
+              return select_for_real(readers, writers, errors, wait) unless Net::BloomfireSSH::Test::Extensions::IO.extension_enabled?
               ready_readers = Array(readers).select { |r| r.select_for_read? }
               ready_writers = Array(writers).select { |r| r.select_for_write? }
               ready_errors  = Array(errors).select  { |r| r.select_for_error? }
@@ -167,7 +167,7 @@ module Net
   end
 end
 
-Net::SSH::BufferedIo.send(:include, Net::SSH::Test::Extensions::BufferedIo)
-Net::SSH::Transport::PacketStream.send(:include, Net::SSH::Test::Extensions::PacketStream)
-Net::SSH::Connection::Channel.send(:include, Net::SSH::Test::Extensions::Channel)
-IO.send(:include, Net::SSH::Test::Extensions::IO)
+Net::BloomfireSSH::BufferedIo.send(:include, Net::BloomfireSSH::Test::Extensions::BufferedIo)
+Net::BloomfireSSH::Transport::PacketStream.send(:include, Net::BloomfireSSH::Test::Extensions::PacketStream)
+Net::BloomfireSSH::Connection::Channel.send(:include, Net::BloomfireSSH::Test::Extensions::Channel)
+IO.send(:include, Net::BloomfireSSH::Test::Extensions::IO)

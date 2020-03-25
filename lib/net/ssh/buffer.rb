@@ -5,9 +5,9 @@ require 'net/ssh/authentication/certificate'
 require 'net/ssh/authentication/ed25519_loader'
 
 module Net
-  module SSH
+  module BloomfireSSH
 
-    # Net::SSH::Buffer is a flexible class for building and parsing binary
+    # Net::BloomfireSSH::Buffer is a flexible class for building and parsing binary
     # data packets. It provides a stream-like interface for sequentially
     # reading data items from the buffer, as well as a useful helper method
     # for building binary packets given a signature.
@@ -17,7 +17,7 @@ module Net
     # byte of the buffer and increments the read cursor, with subsequent reads
     # taking up where the last left off.
     #
-    # As a consumer of the Net::SSH library, you will rarely come into contact
+    # As a consumer of the Net::BloomfireSSH library, you will rarely come into contact
     # with these buffer objects directly, but it could happen. Also, if you
     # are ever implementing a protocol on top of SSH (e.g. SFTP), this buffer
     # class can be quite handy.
@@ -150,7 +150,7 @@ module Net
       end
 
       # Returns all text from the current pointer to the end of the buffer as
-      # a new Net::SSH::Buffer object.
+      # a new Net::BloomfireSSH::Buffer object.
       def remainder_as_buffer
         Buffer.new(@content[@position..-1])
       end
@@ -294,7 +294,7 @@ module Net
       def read_keyblob(type)
         case type
         when /^(.*)-cert-v01@openssh\.com$/
-          key = Net::SSH::Authentication::Certificate.read_certblob(self, $1)
+          key = Net::BloomfireSSH::Authentication::Certificate.read_certblob(self, $1)
         when /^ssh-dss$/
           key = OpenSSL::PKey::DSA.new
           if key.respond_to?(:set_pqg)
@@ -320,8 +320,8 @@ module Net
             key.n = read_bignum
           end
         when /^ssh-ed25519$/
-          Net::SSH::Authentication::ED25519Loader.raiseUnlessLoaded("unsupported key type `#{type}'")
-          key = Net::SSH::Authentication::ED25519::PubKey.read_keyblob(self)
+          Net::BloomfireSSH::Authentication::ED25519Loader.raiseUnlessLoaded("unsupported key type `#{type}'")
+          key = Net::BloomfireSSH::Authentication::ED25519::PubKey.read_keyblob(self)
         when /^ecdsa\-sha2\-(\w*)$/
           unless defined?(OpenSSL::PKey::EC)
             raise NotImplementedError, "unsupported key type `#{type}'"

@@ -1,11 +1,11 @@
 require 'net/ssh/errors'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Proxy
 
       # A general exception class for all Proxy errors.
-      class Error < Net::SSH::Exception; end
+      class Error < Net::BloomfireSSH::Exception; end
 
       # Used for reporting proxy connection errors.
       class ConnectError < Error; end

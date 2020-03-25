@@ -1,6 +1,6 @@
 require 'net/ssh/transport/hmac/abstract'
 
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
 
   # The MD5 HMAC algorithm.
   class MD5 < Abstract

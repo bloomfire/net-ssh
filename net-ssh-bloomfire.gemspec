@@ -2,8 +2,8 @@
 require_relative 'lib/net/ssh/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "net-ssh"
-  spec.version       = Net::SSH::Version::STRING
+  spec.name          = "net-ssh-bloomfire"
+  spec.version       = Net::BloomfireSSH::Version::STRING
   spec.authors       = ["Jamis Buck", "Delano Mandelbaum", "Mikl\u{f3}s Fazekas"]
   spec.email         = ["net-ssh@solutious.com"]
 
@@ -12,8 +12,8 @@ Gem::Specification.new do |spec|
     spec.signing_key = "/mnt/gem/net-ssh-private_key.pem"
   end
 
-  spec.summary       = %q{Net::SSH: a pure-Ruby implementation of the SSH2 client protocol.}
-  spec.description   = %q{Net::SSH: a pure-Ruby implementation of the SSH2 client protocol. It allows you to write programs that invoke and interact with processes on remote servers, via SSH2.}
+  spec.summary       = %q{Net::BloomfireSSH: a pure-Ruby implementation of the SSH2 client protocol.}
+  spec.description   = %q{Net::BloomfireSSH: a pure-Ruby implementation of the SSH2 client protocol. It allows you to write programs that invoke and interact with processes on remote servers, via SSH2.}
   spec.homepage      = "https://github.com/net-ssh/net-ssh"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.2.6")

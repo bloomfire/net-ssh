@@ -3,7 +3,7 @@ require 'net/ssh/test/local_packet'
 require 'net/ssh/test/remote_packet'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Test
 
       # Represents a sequence of scripted events that identify the behavior that
@@ -12,15 +12,15 @@ module Net
       # events for packets being received by the local from the remote host.
       #
       # A reference to a script. is generally obtained in a unit test via the
-      # Net::SSH::Test#story helper method:
+      # Net::BloomfireSSH::Test#story helper method:
       #
       #   story do |script|
       #     channel = script.opens_channel
       #     ...
       #   end
       class Script
-        # The list of scripted events. These will be Net::SSH::Test::LocalPacket
-        # and Net::SSH::Test::RemotePacket instances.
+        # The list of scripted events. These will be Net::BloomfireSSH::Test::LocalPacket
+        # and Net::BloomfireSSH::Test::RemotePacket instances.
         attr_reader :events
     
         # Create a new, empty script.
@@ -32,7 +32,7 @@ module Net
         # channel open request, and if +confirm+ is true (the default), also
         # adding a remote packet confirming the new channel.
         #
-        # A new Net::SSH::Test::Channel instance is returned, which can be used
+        # A new Net::BloomfireSSH::Test::Channel instance is returned, which can be used
         # to script additional channel operations.
         def opens_channel(confirm=true)
           channel = Channel.new(self)
@@ -58,7 +58,7 @@ module Net
         end
     
         # Scripts the sending of a new channel request packet to the remote host.
-        # +channel+ should be an instance of Net::SSH::Test::Channel. +request+
+        # +channel+ should be an instance of Net::BloomfireSSH::Test::Channel. +request+
         # is a string naming the request type to send, +reply+ is a boolean
         # indicating whether a response to this packet is required , and +data+
         # is any additional request-specific data that this packet should send.
@@ -69,8 +69,8 @@ module Net
         # If a reply is desired, a remote packet will also be queued, :channel_success
         # if +success+ is true, or :channel_failure if +success+ is false.
         #
-        # This will typically be called via Net::SSH::Test::Channel#sends_exec or
-        # Net::SSH::Test::Channel#sends_subsystem.
+        # This will typically be called via Net::BloomfireSSH::Test::Channel#sends_exec or
+        # Net::BloomfireSSH::Test::Channel#sends_subsystem.
         def sends_channel_request(channel, request, reply, data, success=true)
           if data.is_a? Array
             events << LocalPacket.new(:channel_request, channel.remote_id, request, reply, *data)
@@ -87,47 +87,47 @@ module Net
         end
     
         # Scripts the sending of a channel data packet. +channel+ must be a
-        # Net::SSH::Test::Channel object, and +data+ is the (string) data to
+        # Net::BloomfireSSH::Test::Channel object, and +data+ is the (string) data to
         # expect will be sent.
         #
-        # This will typically be called via Net::SSH::Test::Channel#sends_data.
+        # This will typically be called via Net::BloomfireSSH::Test::Channel#sends_data.
         def sends_channel_data(channel, data)
           events << LocalPacket.new(:channel_data, channel.remote_id, data)
         end
     
         # Scripts the sending of a channel EOF packet from the given
-        # Net::SSH::Test::Channel +channel+. This will typically be called via
-        # Net::SSH::Test::Channel#sends_eof.
+        # Net::BloomfireSSH::Test::Channel +channel+. This will typically be called via
+        # Net::BloomfireSSH::Test::Channel#sends_eof.
         def sends_channel_eof(channel)
           events << LocalPacket.new(:channel_eof, channel.remote_id)
         end
     
         # Scripts the sending of a channel close packet from the given
-        # Net::SSH::Test::Channel +channel+. This will typically be called via
-        # Net::SSH::Test::Channel#sends_close.
+        # Net::BloomfireSSH::Test::Channel +channel+. This will typically be called via
+        # Net::BloomfireSSH::Test::Channel#sends_close.
         def sends_channel_close(channel)
           events << LocalPacket.new(:channel_close, channel.remote_id)
         end
     
         # Scripts the sending of a channel request pty packets from the given
-        # Net::SSH::Test::Channel +channel+. This will typically be called via
-        # Net::SSH::Test::Channel#sends_request_pty.
+        # Net::BloomfireSSH::Test::Channel +channel+. This will typically be called via
+        # Net::BloomfireSSH::Test::Channel#sends_request_pty.
         def sends_channel_request_pty(channel)
           data = ['pty-req', false]
-          data += Net::SSH::Connection::Channel::VALID_PTY_OPTIONS.merge(modes: "\0").values
+          data += Net::BloomfireSSH::Connection::Channel::VALID_PTY_OPTIONS.merge(modes: "\0").values
           events << LocalPacket.new(:channel_request, channel.remote_id, *data)
         end
     
         # Scripts the reception of a channel data packet from the remote host by
-        # the given Net::SSH::Test::Channel +channel+. This will typically be
-        # called via Net::SSH::Test::Channel#gets_data.
+        # the given Net::BloomfireSSH::Test::Channel +channel+. This will typically be
+        # called via Net::BloomfireSSH::Test::Channel#gets_data.
         def gets_channel_data(channel, data)
           events << RemotePacket.new(:channel_data, channel.local_id, data)
         end
     
         # Scripts the reception of a channel extended data packet from the remote
-        # host by the given Net::SSH::Test::Channel +channel+. This will typically
-        # be called via Net::SSH::Test::Channel#gets_extended_data.
+        # host by the given Net::BloomfireSSH::Test::Channel +channel+. This will typically
+        # be called via Net::BloomfireSSH::Test::Channel#gets_extended_data.
         #
         # Currently the only extended data type is stderr == 1.
         def gets_channel_extended_data(channel, data)
@@ -135,22 +135,22 @@ module Net
         end
     
         # Scripts the reception of a channel request packet from the remote host by
-        # the given Net::SSH::Test::Channel +channel+. This will typically be
-        # called via Net::SSH::Test::Channel#gets_exit_status.
+        # the given Net::BloomfireSSH::Test::Channel +channel+. This will typically be
+        # called via Net::BloomfireSSH::Test::Channel#gets_exit_status.
         def gets_channel_request(channel, request, reply, data)
           events << RemotePacket.new(:channel_request, channel.local_id, request, reply, data)
         end
     
         # Scripts the reception of a channel EOF packet from the remote host by
-        # the given Net::SSH::Test::Channel +channel+. This will typically be
-        # called via Net::SSH::Test::Channel#gets_eof.
+        # the given Net::BloomfireSSH::Test::Channel +channel+. This will typically be
+        # called via Net::BloomfireSSH::Test::Channel#gets_eof.
         def gets_channel_eof(channel)
           events << RemotePacket.new(:channel_eof, channel.local_id)
         end
     
         # Scripts the reception of a channel close packet from the remote host by
-        # the given Net::SSH::Test::Channel +channel+. This will typically be
-        # called via Net::SSH::Test::Channel#gets_close.
+        # the given Net::BloomfireSSH::Test::Channel +channel+. This will typically be
+        # called via Net::BloomfireSSH::Test::Channel#gets_close.
         def gets_channel_close(channel)
           events << RemotePacket.new(:channel_close, channel.local_id)
         end
@@ -170,7 +170,7 @@ module Net
     
         # Compare the given packet against the next event in the list. If there is
         # no next event, an exception will be raised. This is called by
-        # Net::SSH::Test::Extensions::PacketStream#test_enqueue_packet.
+        # Net::BloomfireSSH::Test::Extensions::PacketStream#test_enqueue_packet.
         def process(packet)
           event = events.shift or raise "end of script reached, but got a packet type #{packet.read_byte}"
           event.process(packet)

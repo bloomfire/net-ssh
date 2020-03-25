@@ -1,6 +1,6 @@
 require 'net/ssh/transport/hmac/abstract'
 
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
 
   # The "none" algorithm. This has a key and mac length of 0.
   class None < Abstract

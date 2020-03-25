@@ -4,7 +4,7 @@ require 'net/ssh/connection/session'
 module Connection
 
   class TestSession < NetSSHTest
-    include Net::SSH::Connection::Constants
+    include Net::BloomfireSSH::Connection::Constants
 
     def test_constructor_should_set_defaults
       assert session.channels.empty?
@@ -21,7 +21,7 @@ module Connection
     end
 
     def test_forward_should_create_and_cache_instance_of_forward_service
-      assert_instance_of Net::SSH::Service::Forward, session.forward
+      assert_instance_of Net::BloomfireSSH::Service::Forward, session.forward
       assert_equal session.forward.object_id, session.forward.object_id
     end
 
@@ -226,7 +226,7 @@ module Connection
     def test_channel_open_packet_with_corresponding_handler_should_result_in_channel_open_failure_when_handler_returns_an_error
       transport.return(CHANNEL_OPEN, :string, "auth-agent", :long, 14, :long, 0x20000, :long, 0x10000)
       session.on_open_channel "auth-agent" do |s, ch, p|
-        raise Net::SSH::ChannelOpenFailed.new(1234, "we iz in ur channelz!")
+        raise Net::BloomfireSSH::ChannelOpenFailed.new(1234, "we iz in ur channelz!")
       end
       process_times(2)
       assert_equal P(:byte, CHANNEL_OPEN_FAILURE, :long, 14, :long, 1234, :string, "we iz in ur channelz!", :string, "").to_s, socket.write_buffer
@@ -275,7 +275,7 @@ module Connection
     end
 
     def test_channel_request_packet_should_be_routed_to_corresponding_channel
-      channel_at(14).expects(:do_request).with("testing", false, Net::SSH::Buffer.new)
+      channel_at(14).expects(:do_request).with("testing", false, Net::BloomfireSSH::Buffer.new)
       transport.return(CHANNEL_REQUEST, :long, 14, :string, "testing", :bool, false)
       process_times(2)
     end
@@ -385,18 +385,18 @@ module Connection
     end
 
     def test_process_should_call_enqueue_message_if_io_select_timed_out
-      timeout = Net::SSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
+      timeout = Net::BloomfireSSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
       options = { keepalive: true }
-      expected_packet = P(:byte, Net::SSH::Packet::GLOBAL_REQUEST, :string, "keepalive@openssh.com", :bool, true)
+      expected_packet = P(:byte, Net::BloomfireSSH::Packet::GLOBAL_REQUEST, :string, "keepalive@openssh.com", :bool, true)
       IO.stubs(:select).with([socket],[],nil,timeout).returns(nil)
       transport.expects(:enqueue_message).with { |msg| msg.content == expected_packet.content }
       session(options).process
     end
 
     def test_process_should_raise_if_keepalives_not_answered
-      timeout = Net::SSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
+      timeout = Net::BloomfireSSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
       options = { keepalive: true, keepalive_interval: 300, keepalive_maxcount: 3 }
-      expected_packet = P(:byte, Net::SSH::Packet::GLOBAL_REQUEST, :string, "keepalive@openssh.com", :bool, true)
+      expected_packet = P(:byte, Net::BloomfireSSH::Packet::GLOBAL_REQUEST, :string, "keepalive@openssh.com", :bool, true)
       [1,2,3].each do |i|
         Time.stubs(:now).returns(Time.at(i * 300))
         IO.stubs(:select).with([socket],[],nil,timeout).returns(nil)
@@ -407,11 +407,11 @@ module Connection
       Time.stubs(:now).returns(Time.at(4 * 300))
       IO.stubs(:select).with([socket],[],nil,timeout).returns(nil)
       transport.expects(:enqueue_message).with { |msg| msg.content == expected_packet.content }
-      assert_raises(Net::SSH::Timeout) { session(options).process }
+      assert_raises(Net::BloomfireSSH::Timeout) { session(options).process }
     end
 
     def test_process_should_not_call_enqueue_message_unless_io_select_timed_out
-      timeout = Net::SSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
+      timeout = Net::BloomfireSSH::Connection::Session::DEFAULT_IO_SELECT_TIMEOUT
       options = { keepalive: true }
       IO.stubs(:select).with([socket],[],nil,timeout).returns([[socket],[],[]])
       socket.stubs(:recv).returns("x")
@@ -560,7 +560,7 @@ module Connection
     def socket
       @socket ||= begin
         socket ||= Object.new
-        socket.extend(Net::SSH::Transport::PacketStream)
+        socket.extend(Net::BloomfireSSH::Transport::PacketStream)
         socket.extend(MockSocket)
         socket
       end
@@ -575,7 +575,7 @@ module Connection
     end
 
     def session(options={})
-      @session ||= Net::SSH::Connection::Session.new(transport, options)
+      @session ||= Net::BloomfireSSH::Connection::Session.new(transport, options)
     end
 
     def process_times(n)

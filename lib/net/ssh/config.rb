@@ -1,9 +1,9 @@
 module Net
-  module SSH
+  module BloomfireSSH
 
-    # The Net::SSH::Config class is used to parse OpenSSH configuration files,
-    # and translates that syntax into the configuration syntax that Net::SSH
-    # understands. This lets Net::SSH scripts read their configuration (to
+    # The Net::BloomfireSSH::Config class is used to parse OpenSSH configuration files,
+    # and translates that syntax into the configuration syntax that Net::BloomfireSSH
+    # understands. This lets Net::BloomfireSSH scripts read their configuration (to
     # some extent) from OpenSSH configuration files (~/.ssh/config, /etc/ssh_config,
     # and so forth).
     #
@@ -40,7 +40,7 @@ module Net
     #
     # Note that you will never need to use this class directly--you can control
     # whether the OpenSSH configuration files are read by passing the :config
-    # option to Net::SSH.start. (They are, by default.)
+    # option to Net::BloomfireSSH.start. (They are, by default.)
     class Config
       class << self
         @@default_files = %w[~/.ssh/config /etc/ssh_config /etc/ssh/ssh_config]
@@ -63,7 +63,7 @@ module Net
         # Loads the configuration data for the given +host+ from all of the
         # given +files+ (defaulting to the list of files returned by
         # #default_files), translates the resulting hash into the options
-        # recognized by Net::SSH, and returns them.
+        # recognized by Net::BloomfireSSH, and returns them.
         def for(host, files=expandable_default_files)
           translate(files.inject({}) { |settings, file|
             load(file, host, settings)
@@ -74,7 +74,7 @@ module Net
         # given +host+. If +settings+ is given, the options are merged into
         # that hash, with existing values taking precedence over newly parsed
         # ones. Returns a hash containing the OpenSSH options. (See
-        # #translate for how to convert the OpenSSH options into Net::SSH
+        # #translate for how to convert the OpenSSH options into Net::BloomfireSSH
         # options.)
         def load(path, host, settings={}, base_dir = nil)
           file = File.expand_path(path)
@@ -162,7 +162,7 @@ module Net
         end
 
         # Given a hash of OpenSSH configuration options, converts them into
-        # a hash of Net::SSH options. Unrecognized options are ignored. The
+        # a hash of Net::BloomfireSSH options. Unrecognized options are ignored. The
         # +settings+ hash must have Strings for keys, all downcased, and
         # the returned hash will have Symbols for keys.
         def translate(settings)
@@ -253,12 +253,12 @@ module Net
           when :proxycommand
             if value and value !~ /^none$/
               require 'net/ssh/proxy/command'
-              hash[:proxy] = Net::SSH::Proxy::Command.new(value)
+              hash[:proxy] = Net::BloomfireSSH::Proxy::Command.new(value)
             end
           when :proxyjump
             if value
               require 'net/ssh/proxy/jump'
-              hash[:proxy] = Net::SSH::Proxy::Jump.new(value)
+              hash[:proxy] = Net::BloomfireSSH::Proxy::Jump.new(value)
             end
           when :pubkeyauthentication
             if value

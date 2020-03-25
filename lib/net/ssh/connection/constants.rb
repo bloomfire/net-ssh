@@ -1,5 +1,5 @@
 module Net
-  module SSH
+  module BloomfireSSH
     module Connection
 
       # Definitions of constants that are specific to the connection layer of the

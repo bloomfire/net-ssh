@@ -59,16 +59,16 @@ EOF
 
     def test_connect_should_raise_error_if_connection_could_not_be_established
       factory.expects(:open).raises(SocketError)
-      assert_raises(Net::SSH::Authentication::AgentNotAvailable) { agent(false).connect! }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentNotAvailable) { agent(false).connect! }
     end
 
     def test_negotiate_should_raise_error_if_ssh2_agent_response_received
       socket.expect do |s, type, buffer|
         assert_equal SSH2_AGENT_REQUEST_VERSION, type
-        assert_equal Net::SSH::Transport::ServerVersion::PROTO_VERSION, buffer.read_string
+        assert_equal Net::BloomfireSSH::Transport::ServerVersion::PROTO_VERSION, buffer.read_string
         s.return(SSH2_AGENT_VERSION_RESPONSE)
       end
-      assert_raises(Net::SSH::Authentication::AgentNotAvailable) { agent.negotiate! }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentNotAvailable) { agent.negotiate! }
     end
 
     def test_negotiate_should_raise_error_if_response_was_unexpected
@@ -76,7 +76,7 @@ EOF
         assert_equal SSH2_AGENT_REQUEST_VERSION, type
         s.return(255)
       end
-      assert_raises(Net::SSH::Authentication::AgentNotAvailable) { agent.negotiate! }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentNotAvailable) { agent.negotiate! }
     end
 
     def test_negotiate_should_be_successful_with_expected_response
@@ -92,7 +92,7 @@ EOF
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
         s.return(SSH_AGENT_FAILURE)
       end
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.identities }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.identities }
     end
 
     def test_identities_should_fail_if_SSH2_AGENT_FAILURE_received
@@ -100,7 +100,7 @@ EOF
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
         s.return(SSH2_AGENT_FAILURE)
       end
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.identities }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.identities }
     end
 
     def test_identities_should_fail_if_SSH_COM_AGENT2_FAILURE_received
@@ -108,7 +108,7 @@ EOF
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
         s.return(SSH_COM_AGENT2_FAILURE)
       end
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.identities }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.identities }
     end
 
     def test_identities_should_fail_if_response_is_not_SSH2_AGENT_IDENTITIES_ANSWER
@@ -116,7 +116,7 @@ EOF
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
         s.return(255)
       end
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.identities }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.identities }
     end
 
     def test_identities_should_augment_identities_with_comment_field
@@ -125,7 +125,7 @@ EOF
 
       socket.expect do |s, type, buffer|
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
-        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 2, :string, Net::SSH::Buffer.from(:key, key1), :string, "My favorite key", :string, Net::SSH::Buffer.from(:key, key2), :string, "Okay, but not the best")
+        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 2, :string, Net::BloomfireSSH::Buffer.from(:key, key1), :string, "My favorite key", :string, Net::BloomfireSSH::Buffer.from(:key, key2), :string, "Okay, but not the best")
       end
 
       result = agent.identities
@@ -143,7 +143,7 @@ EOF
 
       socket.expect do |s, type, buffer|
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
-        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 3, :string, Net::SSH::Buffer.from(:key, key1), :string, "My favorite key", :string, Net::SSH::Buffer.from(:key, key2), :string, "bad", :string, Net::SSH::Buffer.from(:key, key3), :string, "Okay, but not the best")
+        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 3, :string, Net::BloomfireSSH::Buffer.from(:key, key1), :string, "My favorite key", :string, Net::BloomfireSSH::Buffer.from(:key, key2), :string, "bad", :string, Net::BloomfireSSH::Buffer.from(:key, key3), :string, "Okay, but not the best")
       end
 
       result = agent.identities
@@ -156,12 +156,12 @@ EOF
 
     def test_identities_should_ignore_invalid_ones
       key1 = key
-      key2_bad = Net::SSH::Buffer.new("")
+      key2_bad = Net::BloomfireSSH::Buffer.new("")
       key3 = OpenSSL::PKey::DSA.new(512)
 
       socket.expect do |s, type, buffer|
         assert_equal SSH2_AGENT_REQUEST_IDENTITIES, type
-        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 3, :string, Net::SSH::Buffer.from(:key, key1), :string, "My favorite key", :string, key2_bad, :string, "bad", :string, Net::SSH::Buffer.from(:key, key3), :string, "Okay, but not the best")
+        s.return(SSH2_AGENT_IDENTITIES_ANSWER, :long, 3, :string, Net::BloomfireSSH::Buffer.from(:key, key1), :string, "My favorite key", :string, key2_bad, :string, "bad", :string, Net::BloomfireSSH::Buffer.from(:key, key3), :string, "Okay, but not the best")
       end
 
       result = agent.identities
@@ -179,28 +179,28 @@ EOF
 
     def test_sign_should_fail_if_response_is_SSH_AGENT_FAILURE
       socket.expect { |s,| s.return(SSH_AGENT_FAILURE) }
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.sign(key, "hello world") }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.sign(key, "hello world") }
     end
 
     def test_sign_should_fail_if_response_is_SSH2_AGENT_FAILURE
       socket.expect { |s,| s.return(SSH2_AGENT_FAILURE) }
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.sign(key, "hello world") }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.sign(key, "hello world") }
     end
 
     def test_sign_should_fail_if_response_is_SSH_COM_AGENT2_FAILURE
       socket.expect { |s,| s.return(SSH_COM_AGENT2_FAILURE) }
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.sign(key, "hello world") }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.sign(key, "hello world") }
     end
 
     def test_sign_should_fail_if_response_is_not_SSH2_AGENT_SIGN_RESPONSE
       socket.expect { |s,| s.return(255) }
-      assert_raises(Net::SSH::Authentication::AgentError) { agent.sign(key, "hello world") }
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) { agent.sign(key, "hello world") }
     end
 
     def test_sign_should_return_signed_data_from_agent
       socket.expect do |s,type,buffer|
         assert_equal SSH2_AGENT_SIGN_REQUEST, type
-        assert_equal key.to_blob, Net::SSH::Buffer.new(buffer.read_string).read_key.to_blob
+        assert_equal key.to_blob, Net::BloomfireSSH::Buffer.new(buffer.read_string).read_key.to_blob
         assert_equal "hello world", buffer.read_string
         assert_equal 0, buffer.read_long
 
@@ -323,8 +323,8 @@ EOF
     end
 
     def test_add_ed25519_identity
-      return unless Net::SSH::Authentication::ED25519Loader::LOADED
-      ed25519 = Net::SSH::Authentication::ED25519::PrivKey.read(ED25519, nil)
+      return unless Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
+      ed25519 = Net::BloomfireSSH::Authentication::ED25519::PrivKey.read(ED25519, nil)
       socket.expect do |s,type,buffer|
         assert_equal SSH2_AGENT_ADD_IDENTITY, type
         assert_equal buffer.read_string, "ssh-ed25519"
@@ -340,8 +340,8 @@ EOF
     end
 
     def test_add_ed25519_cert_identity
-      return unless Net::SSH::Authentication::ED25519Loader::LOADED
-      cert = make_cert(Net::SSH::Authentication::ED25519::PrivKey.read(ED25519, nil))
+      return unless Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
+      cert = make_cert(Net::BloomfireSSH::Authentication::ED25519::PrivKey.read(ED25519, nil))
       socket.expect do |s,type,buffer|
         assert_equal SSH2_AGENT_ADD_IDENTITY, type
         assert_equal buffer.read_string, "ssh-ed25519-cert-v01@openssh.com"
@@ -362,7 +362,7 @@ EOF
         s.return(SSH_AGENT_FAILURE)
       end
 
-      assert_raises(Net::SSH::Authentication::AgentError) do
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) do
         agent.add_identity(key, "foobar")
       end
     end
@@ -384,7 +384,7 @@ EOF
         s.return(SSH_AGENT_FAILURE)
       end
 
-      assert_raises(Net::SSH::Authentication::AgentError) do
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) do
         agent.remove_identity(key)
       end
     end
@@ -405,7 +405,7 @@ EOF
         s.return(SSH_AGENT_FAILURE)
       end
 
-      assert_raises(Net::SSH::Authentication::AgentError) do
+      assert_raises(Net::BloomfireSSH::Authentication::AgentError) do
         agent.remove_all_identities
       end
     end
@@ -413,7 +413,7 @@ EOF
     private
 
     def make_cert(key)
-      cert = Net::SSH::Buffer.new(CERT).read_key
+      cert = Net::BloomfireSSH::Buffer.new(CERT).read_key
       cert.key = key
       cert.sign!(key)
     end
@@ -421,7 +421,7 @@ EOF
     class MockSocket
       def initialize
         @expectation = nil
-        @buffer = Net::SSH::Buffer.new
+        @buffer = Net::BloomfireSSH::Buffer.new
       end
 
       def expect(&block)
@@ -429,13 +429,13 @@ EOF
       end
 
       def return(type, *args)
-        data = Net::SSH::Buffer.from(*args)
+        data = Net::BloomfireSSH::Buffer.from(*args)
         @buffer.append([data.length + 1, type, data.to_s].pack("NCA*"))
       end
 
       def send(data, flags)
         raise "got #{data.inspect} but no packet was expected" unless @expectation
-        buffer = Net::SSH::Buffer.new(data)
+        buffer = Net::BloomfireSSH::Buffer.new(data)
         buffer.read_long # skip the length
         type = buffer.read_byte
         @expectation.call(self, type, buffer)
@@ -461,7 +461,7 @@ EOF
 
     def agent(auto=:connect)
       @agent ||= begin
-        agent = Net::SSH::Authentication::Agent.new
+        agent = Net::BloomfireSSH::Authentication::Agent.new
         agent.stubs(:unix_socket_class).returns(factory)
         agent.connect! if auto == :connect
         agent

@@ -4,25 +4,25 @@ require 'net/ssh/test/extensions'
 require 'net/ssh/test/script'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Test
 
       # A mock socket implementation for use in testing. It implements the minimum
-      # necessary interface for interacting with the rest of the Net::SSH::Test
+      # necessary interface for interacting with the rest of the Net::BloomfireSSH::Test
       # system.
       class Socket < StringIO
         attr_reader :host, :port
     
-        # The Net::SSH::Test::Script object in use by this socket. This is the
+        # The Net::BloomfireSSH::Test::Script object in use by this socket. This is the
         # canonical script instance that should be used for any test depending on
         # this socket instance.
         attr_reader :script
     
-        # Create a new test socket. This will also instantiate a new Net::SSH::Test::Script
+        # Create a new test socket. This will also instantiate a new Net::BloomfireSSH::Test::Script
         # and seed it with the necessary events to power the initialization of the
         # connection.
         def initialize
-          extend(Net::SSH::Transport::PacketStream)
+          extend(Net::BloomfireSSH::Transport::PacketStream)
           super "SSH-2.0-Test\r\n"
     
           @script = Script.new

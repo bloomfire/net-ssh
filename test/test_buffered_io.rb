@@ -56,7 +56,7 @@ class TestBufferedIo < NetSSHTest
   def io
     @io ||= begin
       io = mock("io")
-      io.extend(Net::SSH::BufferedIo)
+      io.extend(Net::BloomfireSSH::BufferedIo)
       io
     end
   end

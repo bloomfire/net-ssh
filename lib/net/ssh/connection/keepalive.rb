@@ -1,6 +1,6 @@
 require 'net/ssh/loggable'
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Connection
 
       class Keepalive
@@ -49,7 +49,7 @@ module Net
           if keepalive_maxcount > 0 && @unresponded_keepalive_count > keepalive_maxcount
             error { "Timeout, server #{@session.host} not responding. Missed #{@unresponded_keepalive_count - 1} timeouts." }
             @unresponded_keepalive_count = 0
-            raise Net::SSH::Timeout, "Timeout, server #{@session.host} not responding."
+            raise Net::BloomfireSSH::Timeout, "Timeout, server #{@session.host} not responding."
           end
         end
       end

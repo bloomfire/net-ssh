@@ -2,7 +2,7 @@ require 'net/ssh/prompt'
 require 'net/ssh/authentication/methods/abstract'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -28,7 +28,7 @@ module Net
               when USERAUTH_FAILURE
                 debug { "keyboard-interactive failed" }
 
-                raise Net::SSH::Authentication::DisallowedMethod unless
+                raise Net::BloomfireSSH::Authentication::DisallowedMethod unless
                   message[:authentications].split(/,/).include? 'keyboard-interactive'
 
                 return false unless interactive?
@@ -59,7 +59,7 @@ module Net
                 msg = Buffer.from(:byte, USERAUTH_INFO_RESPONSE, :long, responses.length, :string, responses)
                 send_message(msg)
               else
-                raise Net::SSH::Exception, "unexpected reply in keyboard interactive: #{message.type} (#{message.inspect})"
+                raise Net::BloomfireSSH::Exception, "unexpected reply in keyboard interactive: #{message.type} (#{message.inspect})"
               end
             end
           end

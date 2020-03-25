@@ -3,12 +3,12 @@ require 'net/ssh/loggable'
 require 'net/ssh/ruby_compat'
 
 module Net 
-  module SSH
+  module BloomfireSSH
 
     # This module is used to extend sockets and other IO objects, to allow
     # them to be buffered for both read and write. This abstraction makes it
     # quite easy to write a select-based event loop
-    # (see Net::SSH::Connection::Session#listen_to).
+    # (see Net::BloomfireSSH::Connection::Session#listen_to).
     #
     # The general idea is that instead of calling #read directly on an IO that
     # has been extended with this module, you call #fill (to add pending input
@@ -23,7 +23,7 @@ module Net
     # the idle times.
     #
     #   socket = TCPSocket.new(address, port)
-    #   socket.extend(Net::SSH::BufferedIo)
+    #   socket.extend(Net::BloomfireSSH::BufferedIo)
     #
     #   ssh.listen_to(socket)
     #
@@ -40,7 +40,7 @@ module Net
     # your class' #initialize method:
     #
     #   class Foo < IO
-    #     include Net::SSH::BufferedIo
+    #     include Net::BloomfireSSH::BufferedIo
     #
     #     def initialize
     #       initialize_buffered_io
@@ -143,13 +143,13 @@ module Net
   
       # Initializes the intput and output buffers for this object. This method
       # is called automatically when the module is mixed into an object via
-      # Object#extend (see Net::SSH::BufferedIo.extended), but must be called
+      # Object#extend (see Net::BloomfireSSH::BufferedIo.extended), but must be called
       # explicitly in the +initialize+ method of any class that uses
       # Module#include to add this module.
       def initialize_buffered_io
-        @input = Net::SSH::Buffer.new
+        @input = Net::BloomfireSSH::Buffer.new
         @input_errors = []
-        @output = Net::SSH::Buffer.new
+        @output = Net::BloomfireSSH::Buffer.new
         @output_errors = []
       end
     end

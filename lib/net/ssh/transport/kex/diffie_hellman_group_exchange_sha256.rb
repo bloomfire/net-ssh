@@ -1,6 +1,6 @@
 require 'net/ssh/transport/kex/diffie_hellman_group_exchange_sha1'
 
-module Net::SSH::Transport::Kex
+module Net::BloomfireSSH::Transport::Kex
   if defined?(OpenSSL::Digest::SHA256)
     # A key-exchange service implementing the
     # "diffie-hellman-group-exchange-sha256" key-exchange algorithm.

@@ -4,17 +4,17 @@ require 'net/ssh/prompt'
 require 'net/ssh/authentication/ed25519_loader'
 
 module Net
-  module SSH
+  module BloomfireSSH
 
     # A factory class for returning new Key classes. It is used for obtaining
     # OpenSSL key instances via their SSH names, and for loading both public and
-    # private keys. It used used primarily by Net::SSH itself, internally, and
+    # private keys. It used used primarily by Net::BloomfireSSH itself, internally, and
     # will rarely (if ever) be directly used by consumers of the library.
     #
-    #   klass = Net::SSH::KeyFactory.get("rsa")
+    #   klass = Net::BloomfireSSH::KeyFactory.get("rsa")
     #   assert klass.is_a?(OpenSSL::PKey::RSA)
     #
-    #   key = Net::SSH::KeyFactory.load_public_key("~/.ssh/id_dsa.pub")
+    #   key = Net::BloomfireSSH::KeyFactory.load_public_key("~/.ssh/id_dsa.pub")
     class KeyFactory
       # Specifies the mapping of SSH names to OpenSSL key classes.
       MAP = {
@@ -24,7 +24,7 @@ module Net
       }
       if defined?(OpenSSL::PKey::EC)
         MAP["ecdsa"] = OpenSSL::PKey::EC
-        MAP["ed25519"] = Net::SSH::Authentication::ED25519::PrivKey if defined? Net::SSH::Authentication::ED25519
+        MAP["ed25519"] = Net::BloomfireSSH::Authentication::ED25519::PrivKey if defined? Net::BloomfireSSH::Authentication::ED25519
       end
 
       class <<self
@@ -98,10 +98,10 @@ module Net
           end while !blob.nil? && !/^(ssh-(rsa|dss|ed25519)|ecdsa-sha2-nistp\d+)(-cert-v01@openssh\.com)?$/.match(blob)
           blob = fields.shift
 
-          raise Net::SSH::Exception, "public key at #{filename} is not valid" if blob.nil?
+          raise Net::BloomfireSSH::Exception, "public key at #{filename} is not valid" if blob.nil?
 
           blob = blob.unpack("m*").first
-          reader = Net::SSH::Buffer.new(blob)
+          reader = Net::BloomfireSSH::Buffer.new(blob)
           reader.read_key or raise OpenSSL::PKey::PKeyError, "not a public key #{filename.inspect}"
         end
 
@@ -124,15 +124,15 @@ module Net
 
         class OpenSSHPrivateKeyType < KeyType
           def self.read(key_data, passphrase)
-            Net::SSH::Authentication::ED25519::OpenSSHPrivateKeyLoader.read(key_data, passphrase)
+            Net::BloomfireSSH::Authentication::ED25519::OpenSSHPrivateKeyLoader.read(key_data, passphrase)
           end
 
           def self.error_classes
-            [Net::SSH::Authentication::ED25519::OpenSSHPrivateKeyLoader::DecryptError]
+            [Net::BloomfireSSH::Authentication::ED25519::OpenSSHPrivateKeyLoader::DecryptError]
           end
 
           def self.encrypted_key?(key_data, decode_error)
-            decode_error.is_a?(Net::SSH::Authentication::ED25519::OpenSSHPrivateKeyLoader::DecryptError) && decode_error.encrypted_key?
+            decode_error.is_a?(Net::BloomfireSSH::Authentication::ED25519::OpenSSHPrivateKeyLoader::DecryptError) && decode_error.encrypted_key?
           end
         end
 
@@ -199,7 +199,7 @@ module Net
         # appropriately.
         def classify_key(data, filename)
           if data.match(/-----BEGIN OPENSSH PRIVATE KEY-----/)
-            Net::SSH::Authentication::ED25519Loader.raiseUnlessLoaded("OpenSSH keys only supported if ED25519 is available")
+            Net::BloomfireSSH::Authentication::ED25519Loader.raiseUnlessLoaded("OpenSSH keys only supported if ED25519 is available")
             return OpenSSHPrivateKeyType
           elsif OpenSSL::PKey.respond_to?(:read)
             return OpenSSLPKeyType

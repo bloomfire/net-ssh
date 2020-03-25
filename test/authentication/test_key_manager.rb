@@ -24,7 +24,7 @@ module Authentication
     end
 
     def test_use_agent_should_be_set_to_false_if_agent_could_not_be_found
-      Net::SSH::Authentication::Agent.expects(:connect).raises(Net::SSH::Authentication::AgentNotAvailable)
+      Net::BloomfireSSH::Authentication::Agent.expects(:connect).raises(Net::BloomfireSSH::Authentication::AgentNotAvailable)
       assert manager.use_agent?
       assert_nil manager.agent
       assert !manager.use_agent?
@@ -167,9 +167,9 @@ module Authentication
     def test_sign_with_file_originated_key_should_raise_key_manager_error_if_unloadable
       manager.known_identities[rsa] = { from: :file, file: "/first" }
 
-      Net::SSH::KeyFactory.expects(:load_private_key).raises(OpenSSL::PKey::RSAError)
+      Net::BloomfireSSH::KeyFactory.expects(:load_private_key).raises(OpenSSL::PKey::RSAError)
 
-      assert_raises Net::SSH::Authentication::KeyManagerError do
+      assert_raises Net::BloomfireSSH::Authentication::KeyManagerError do
         manager.sign(rsa, "hello, world")
       end
     end
@@ -186,13 +186,13 @@ module Authentication
 
       case options.fetch(:passphrase, :indifferently)
       when :should_be_asked
-        Net::SSH::KeyFactory.expects(:load_private_key).with(name, nil, false, prompt).raises(OpenSSL::PKey::RSAError).at_least_once
-        Net::SSH::KeyFactory.expects(:load_private_key).with(name, nil, true, prompt).returns(key).at_least_once
+        Net::BloomfireSSH::KeyFactory.expects(:load_private_key).with(name, nil, false, prompt).raises(OpenSSL::PKey::RSAError).at_least_once
+        Net::BloomfireSSH::KeyFactory.expects(:load_private_key).with(name, nil, true, prompt).returns(key).at_least_once
       when :should_not_be_asked
-        Net::SSH::KeyFactory.expects(:load_private_key).with(name, nil, false, prompt).raises(OpenSSL::PKey::RSAError).at_least_once
-        Net::SSH::KeyFactory.expects(:load_private_key).with(name, nil, true, prompt).never
+        Net::BloomfireSSH::KeyFactory.expects(:load_private_key).with(name, nil, false, prompt).raises(OpenSSL::PKey::RSAError).at_least_once
+        Net::BloomfireSSH::KeyFactory.expects(:load_private_key).with(name, nil, true, prompt).never
       else # :indifferently
-        Net::SSH::KeyFactory.expects(:load_private_key).with(name, nil, any_of(true, false), prompt).returns(key).at_least_once
+        Net::BloomfireSSH::KeyFactory.expects(:load_private_key).with(name, nil, any_of(true, false), prompt).returns(key).at_least_once
       end
 
       # do not override OpenSSL::PKey::EC#public_key
@@ -208,7 +208,7 @@ module Authentication
       File.stubs(:readable?).with(name + ".pub").returns(true)
       File.stubs(:file?).with(name + "-cert.pub").returns(false)
 
-      Net::SSH::KeyFactory.expects(:load_public_key).with(name + ".pub").returns(key).at_least_once
+      Net::BloomfireSSH::KeyFactory.expects(:load_public_key).with(name + ".pub").returns(key).at_least_once
     end
 
     def stub_file_cert(name, key)
@@ -220,7 +220,7 @@ module Authentication
       File.stubs(:file?).with(name + "-cert.pub").returns(true)
       File.stubs(:readable?).with(name + "-cert.pub").returns(true)
 
-      Net::SSH::KeyFactory.expects(:load_public_key).with(name + "-cert.pub").returns(key).at_least_once
+      Net::BloomfireSSH::KeyFactory.expects(:load_public_key).with(name + "-cert.pub").returns(key).at_least_once
     end
 
     def rsa(size=512)
@@ -261,7 +261,7 @@ module Authentication
     end
 
     def manager(options = {})
-      @manager ||= Net::SSH::Authentication::KeyManager.new(nil, { password_prompt: prompt }.merge(options))
+      @manager ||= Net::BloomfireSSH::Authentication::KeyManager.new(nil, { password_prompt: prompt }.merge(options))
     end
   end
 

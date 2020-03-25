@@ -78,7 +78,7 @@ module Transport
       end
   
       def subject
-        Net::SSH::Transport::Kex::DiffieHellmanGroupExchangeSHA1
+        Net::BloomfireSSH::Transport::Kex::DiffieHellmanGroupExchangeSHA1
       end
   
       def digest_type
@@ -87,11 +87,11 @@ module Transport
   
       def session_id
         @session_id ||= begin
-          buffer = Net::SSH::Buffer.from(:string, packet_data[:client_version_string],
+          buffer = Net::BloomfireSSH::Buffer.from(:string, packet_data[:client_version_string],
             :string, packet_data[:server_version_string],
             :string, packet_data[:client_algorithm_packet],
             :string, packet_data[:server_algorithm_packet],
-            :string, Net::SSH::Buffer.from(:key, server_key),
+            :string, Net::BloomfireSSH::Buffer.from(:key, server_key),
             :long,   1024,
             :long,   need_bits, # need bits, figure this part out,
             :long,   8192,

@@ -4,7 +4,7 @@ require 'net/ssh/connection/channel'
 module Connection
 
   class TestChannel < NetSSHTest
-    include Net::SSH::Connection::Constants
+    include Net::BloomfireSSH::Connection::Constants
 
     def teardown
       connection.test!
@@ -225,7 +225,7 @@ module Connection
     def test_do_request_for_handled_request_should_invoke_callback_and_do_nothing_if_fails_and_not_wants_reply
       channel.do_open_confirmation(0, 100, 100)
       flag = false
-      channel.on_request("exit-status") { flag = true; raise Net::SSH::ChannelRequestFailed }
+      channel.on_request("exit-status") { flag = true; raise Net::BloomfireSSH::ChannelRequestFailed }
       assert_nothing_raised { channel.do_request "exit-status", false, nil }
       assert flag, "callback should have been invoked"
     end
@@ -242,7 +242,7 @@ module Connection
     def test_do_request_for_handled_request_should_invoke_callback_and_send_CHANNEL_FAILURE_if_returns_false_and_wants_reply
       channel.do_open_confirmation(0, 100, 100)
       flag = false
-      channel.on_request("exit-status") { flag = true; raise Net::SSH::ChannelRequestFailed }
+      channel.on_request("exit-status") { flag = true; raise Net::BloomfireSSH::ChannelRequestFailed }
       connection.expect { |t,p| assert_equal CHANNEL_FAILURE, p.type }
       assert_nothing_raised { channel.do_request "exit-status", true, nil }
       assert flag, "callback should have been invoked"
@@ -457,7 +457,7 @@ module Connection
 
       def send_message(msg)
         raise "#{msg.to_s.inspect} received but no message was expected" unless @expectation
-        packet = Net::SSH::Packet.new(msg.to_s)
+        packet = Net::BloomfireSSH::Packet.new(msg.to_s)
         callback, @expectation = @expectation, nil
         callback.call(self, packet)
       end
@@ -477,7 +477,7 @@ module Connection
     end
 
     def channel(options={}, &block)
-      @channel ||= Net::SSH::Connection::Channel.new(connection(options),
+      @channel ||= Net::BloomfireSSH::Connection::Channel.new(connection(options),
         options[:type] || "session",
         options[:local_id] || 0,
         &block)

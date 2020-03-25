@@ -7,10 +7,10 @@ require 'net/ssh/transport/hmac'
 require 'net/ssh/transport/state'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Transport
 
-      # A module that builds additional functionality onto the Net::SSH::BufferedIo
+      # A module that builds additional functionality onto the Net::BloomfireSSH::BufferedIo
       # module. It adds SSH encryption, compression, and packet validation, as
       # per the SSH2 protocol. It also adds an abstraction for polling packets,
       # to allow for both blocking and non-blocking reads.
@@ -92,7 +92,7 @@ module Net
               if fill <= 0
                 result = poll_next_packet
                 if result.nil?
-                  raise Net::SSH::Disconnect, "connection closed by remote host"
+                  raise Net::BloomfireSSH::Disconnect, "connection closed by remote host"
                 else
                   return result
                 end
@@ -106,8 +106,8 @@ module Net
               return packet if packet
 
               result = IO.select([self], nil, nil, timeout)
-              raise Net::SSH::ConnectionTimeout, "timeout waiting for next packet" unless result
-              raise Net::SSH::Disconnect, "connection closed by remote host" if fill <= 0
+              raise Net::BloomfireSSH::ConnectionTimeout, "timeout waiting for next packet" unless result
+              raise Net::BloomfireSSH::Disconnect, "connection closed by remote host" if fill <= 0
             end
 
           else
@@ -202,12 +202,12 @@ module Net
             data = read_available(minimum)
 
             # decipher it
-            @packet = Net::SSH::Buffer.new(server.update_cipher(data))
+            @packet = Net::BloomfireSSH::Buffer.new(server.update_cipher(data))
             @packet_length = @packet.read_long
           end
 
           need = @packet_length + 4 - server.block_size
-          raise Net::SSH::Exception, "padding error, need #{need} block #{server.block_size}" if need % server.block_size != 0
+          raise Net::BloomfireSSH::Exception, "padding error, need #{need} block #{server.block_size}" if need % server.block_size != 0
 
           return nil if available < need + server.hmac.mac_length
 
@@ -227,7 +227,7 @@ module Net
           payload = @packet.read(@packet_length - padding_length - 1)
 
           my_computed_hmac = server.hmac.digest([server.sequence_number, @packet.content].pack("NA*"))
-          raise Net::SSH::Exception, "corrupted hmac detected" if real_hmac != my_computed_hmac
+          raise Net::BloomfireSSH::Exception, "corrupted hmac detected" if real_hmac != my_computed_hmac
 
           # try to decompress the payload, in case compression is active
           payload = server.decompress(payload)

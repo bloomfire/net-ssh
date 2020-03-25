@@ -68,7 +68,7 @@ SIGNED_CERT = "\x00\x00\x00\x1Cssh-rsa-cert-v01@openssh.com\x00\x00\x00 Ir\xB9\x
 module Authentication
   class TestCertificate < NetSSHTest
     def test_certificate
-      cert = Net::SSH::Buffer.new(SIGNED_CERT).read_key
+      cert = Net::BloomfireSSH::Buffer.new(SIGNED_CERT).read_key
       assert_equal "Ir\xB9\xC9\x94l\x0ER\xA1h\xF5\xFDx\xB2J\xC6g\eHS\xDD\x162\x86\xF1\x90%\\$rf\xAF".force_encoding('BINARY'), cert.nonce
       assert_equal 99, cert.serial
       assert_equal :user, cert.type
@@ -88,13 +88,13 @@ module Authentication
     end
 
     def test_signature_not_valid_for_corrupted_cert
-      cert = Net::SSH::Buffer.new(SIGNED_CERT).read_key
+      cert = Net::BloomfireSSH::Buffer.new(SIGNED_CERT).read_key
       cert.nonce = 'x' * 32
       assert !cert.signature_valid?
     end
 
     def test_sign
-      cert = Net::SSH::Buffer.new(SIGNED_CERT).read_key
+      cert = Net::BloomfireSSH::Buffer.new(SIGNED_CERT).read_key
       cert.signature = nil
       cert.signature_key = nil
       cert.sign!(OpenSSL::PKey::RSA.new(CA_KEY), cert.nonce)

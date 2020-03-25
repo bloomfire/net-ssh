@@ -20,11 +20,11 @@ You can use this as stating point:
 ```ruby
 gem 'net-ssh', '= 4.0.0.beta3'
 require 'net/ssh'
-puts Net::SSH::Version::CURRENT
+puts Net::BloomfireSSH::Version::CURRENT
 
 @host = 'localhost'
 @user = ENV['USER']
-Net::SSH.start(@host, @user) do |ssh|
+Net::BloomfireSSH.start(@host, @user) do |ssh|
   puts ssh.exec!('echo "hello"')
 end
 ```

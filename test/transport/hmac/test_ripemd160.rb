@@ -30,7 +30,7 @@ module Transport
       private
   
       def subject
-        Net::SSH::Transport::HMAC::RIPEMD160
+        Net::BloomfireSSH::Transport::HMAC::RIPEMD160
       end
     end
 

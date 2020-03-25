@@ -24,9 +24,9 @@ class TestAgent < NetSSHTest
       OpenSSL::PKey::DSA.new(512),
       OpenSSL::PKey::EC.new("prime256v1").generate_key
     ]
-    @keys << Net::SSH::Authentication::ED25519::PrivKey.read(ED25519, nil) if Net::SSH::Authentication::ED25519Loader::LOADED
+    @keys << Net::BloomfireSSH::Authentication::ED25519::PrivKey.read(ED25519, nil) if Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
     @keys += @keys.map do |key|
-      cert = Net::SSH::Buffer.new(CERT).read_key
+      cert = Net::BloomfireSSH::Buffer.new(CERT).read_key
       cert.key = key
       cert.sign!(key)
     end
@@ -34,7 +34,7 @@ class TestAgent < NetSSHTest
 
   def test_ssh_agent_add_and_remove
     with_agent do
-      agent = Net::SSH::Authentication::Agent.connect
+      agent = Net::BloomfireSSH::Authentication::Agent.connect
       agent.remove_all_identities
       @keys.each do |key|
         agent.add_identity(key, "key")
@@ -47,7 +47,7 @@ class TestAgent < NetSSHTest
 
   def test_ssh_agent_add_and_remove_all_identities
     with_agent do
-      agent = Net::SSH::Authentication::Agent.connect
+      agent = Net::BloomfireSSH::Authentication::Agent.connect
       agent.remove_all_identities
       @keys.each do |key|
         agent.add_identity(key, "key")

@@ -21,7 +21,7 @@ module Transport
       private
   
       def subject
-        Net::SSH::Transport::HMAC::MD5_96
+        Net::BloomfireSSH::Transport::HMAC::MD5_96
       end
     end
 

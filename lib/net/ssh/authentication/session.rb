@@ -9,20 +9,20 @@ require 'net/ssh/authentication/methods/password'
 require 'net/ssh/authentication/methods/keyboard_interactive'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
 
       # Raised if the current authentication method is not allowed
-      class DisallowedMethod < Net::SSH::Exception
+      class DisallowedMethod < Net::BloomfireSSH::Exception
       end
 
       # Represents an authentication session. It manages the authentication of
       # a user over an established connection (the "transport" object, see
-      # Net::SSH::Transport::Session).
+      # Net::BloomfireSSH::Transport::Session).
       #
       # The use of an authentication session to manage user authentication is
-      # internal to Net::SSH (specifically Net::SSH.start). Consumers of the
-      # Net::SSH library will never need to access this class directly.
+      # internal to Net::BloomfireSSH (specifically Net::BloomfireSSH.start). Consumers of the
+      # Net::BloomfireSSH library will never need to access this class directly.
       class Session
         include Loggable
         include Constants
@@ -46,7 +46,7 @@ module Net
           self.logger = transport.logger
           @transport = transport
 
-          @auth_methods = options[:auth_methods] || Net::SSH::Config.default_auth_methods
+          @auth_methods = options[:auth_methods] || Net::BloomfireSSH::Config.default_auth_methods
           @options = options
 
           @allowed_auth_methods = @auth_methods
@@ -83,7 +83,7 @@ module Net
               end
 
               return true if method.authenticate(next_service, username, password)
-            rescue Net::SSH::Authentication::DisallowedMethod
+            rescue Net::BloomfireSSH::Authentication::DisallowedMethod
             end
           end
 
@@ -118,7 +118,7 @@ module Net
               return packet
 
             else
-              raise Net::SSH::Exception, "unexpected message #{packet.type} (#{packet})"
+              raise Net::BloomfireSSH::Exception, "unexpected message #{packet.type} (#{packet})"
             end
           end
         end
@@ -127,7 +127,7 @@ module Net
         # type. If it is not, an exception is raised.
         def expect_message(type)
           message = next_message
-          raise Net::SSH::Exception, "expected #{type}, got #{message.type} (#{message})" unless message.type == type
+          raise Net::BloomfireSSH::Exception, "expected #{type}, got #{message.type} (#{message})" unless message.type == type
           message
         end
 

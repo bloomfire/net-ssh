@@ -1,6 +1,6 @@
 require 'net/ssh/transport/hmac/md5'
 
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
 
   # The MD5-96 HMAC algorithm. This returns only the first 12 bytes of
   # the digest.

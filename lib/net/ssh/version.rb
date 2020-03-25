@@ -1,5 +1,5 @@
 module Net
-  module SSH
+  module BloomfireSSH
     # A class for describing the current version of a library. The version
     # consists of three parts: the +major+ number, the +minor+ number, and the
     # +tiny+ (or +patch+) number.
@@ -9,7 +9,7 @@ module Net
     #
     #   require 'net/ssh/version'
     #
-    #   if Net::SSH::Version::CURRENT < Net::SSH::Version[2,1,0]
+    #   if Net::BloomfireSSH::Version::CURRENT < Net::BloomfireSSH::Version[2,1,0]
     #     abort "your software is too old!"
     #   end
     class Version
@@ -45,23 +45,23 @@ module Net
         @to_i ||= @major * 1_000_000 + @minor * 1_000 + @tiny
       end
 
-      # The major component of this version of the Net::SSH library
+      # The major component of this version of the Net::BloomfireSSH library
       MAJOR = 5
 
-      # The minor component of this version of the Net::SSH library
+      # The minor component of this version of the Net::BloomfireSSH library
       MINOR = 2
 
-      # The tiny component of this version of the Net::SSH library
+      # The tiny component of this version of the Net::BloomfireSSH library
       TINY  = 0
 
-      # The prerelease component of this version of the Net::SSH library
+      # The prerelease component of this version of the Net::BloomfireSSH library
       # nil allowed
       PRE   = nil
 
-      # The current version of the Net::SSH library as a Version instance
+      # The current version of the Net::BloomfireSSH library as a Version instance
       CURRENT = new(*[MAJOR, MINOR, TINY, PRE].compact)
 
-      # The current version of the Net::SSH library as a String
+      # The current version of the Net::BloomfireSSH library as a String
       STRING = CURRENT.to_s
     end
   end

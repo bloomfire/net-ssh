@@ -1,6 +1,6 @@
 require 'net/ssh/transport/hmac/abstract'
 
-module Net::SSH::Transport::HMAC
+module Net::BloomfireSSH::Transport::HMAC
 
   # The SHA1 HMAC algorithm. This has a mac and key length of 20, and
   # uses the SHA1 digest algorithm.

@@ -6,7 +6,7 @@
 {<img src="https://opencollective.com/net-ssh/sponsors/badge.svg" alt="Sponsors on Open Collective" />}[#sponsors]
  
 
-= Net::SSH 5.x
+= Net::BloomfireSSH 5.x
 
 * Docs: http://net-ssh.github.com/net-ssh
 * Issues: https://github.com/net-ssh/net-ssh/issues
@@ -17,7 +17,7 @@
 
 == DESCRIPTION:
 
-Net::SSH is a pure-Ruby implementation of the SSH2 client protocol. It allows you to write programs that invoke and interact with processes on remote servers, via SSH2.
+Net::BloomfireSSH is a pure-Ruby implementation of the SSH2 client protocol. It allows you to write programs that invoke and interact with processes on remote servers, via SSH2.
 
 == FEATURES:
 
@@ -32,7 +32,7 @@ In a nutshell:
 
   require 'net/ssh'
 
-  Net::SSH.start('host', 'user', password: "password") do |ssh|
+  Net::BloomfireSSH.start('host', 'user', password: "password") do |ssh|
     # capture all stderr and stdout output from a remote process
     output = ssh.exec!("hostname")
     puts output
@@ -77,7 +77,7 @@ In a nutshell:
     ssh.loop { true }
   end
 
-See Net::SSH for more documentation, and links to further information.
+See Net::BloomfireSSH for more documentation, and links to further information.
 
 == REQUIREMENTS:
 
@@ -115,7 +115,7 @@ For ed25519 public key auth support your bundle file should contain ```ed25519``
 
 * Ruby 1.8.x is supported up until the net-ssh 2.5.1 release.
 * Ruby 1.9.x is supported up until the net-ssh 2.9.x release.
-* See {net-ssh.gemspec}[https://github.com/net-ssh/net-ssh/blob/master/net-ssh.gemspec] for current versions ruby requirements
+* See {net-ssh-bloomfire.gemspec}[https://github.com/net-ssh/net-ssh/blob/master/net-ssh-bloomfire.gemspec] for current versions ruby requirements
 
 == RUNNING TESTS
 
@@ -135,7 +135,7 @@ To run integration tests see test/integration/README.txt
 
 === GEM SIGNING (for maintainers)
 
-If you have the net-ssh private signing key, you will be able to create signed release builds. Make sure the private key path matches the `signing_key` path set in `net-ssh.gemspec` and tell rake to sign the gem by setting the `NET_SSH_BUILDGEM_SIGNED` flag:
+If you have the net-ssh private signing key, you will be able to create signed release builds. Make sure the private key path matches the `signing_key` path set in `net-ssh-bloomfire.gemspec` and tell rake to sign the gem by setting the `NET_SSH_BUILDGEM_SIGNED` flag:
 
      NET_SSH_BUILDGEM_SIGNED=true rake build
 

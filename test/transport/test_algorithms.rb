@@ -5,14 +5,14 @@ require 'net/ssh/transport/algorithms'
 module Transport
 
   class TestAlgorithms < NetSSHTest
-    include Net::SSH::Transport::Constants
+    include Net::BloomfireSSH::Transport::Constants
 
     def test_allowed_packets
       (0..255).each do |type|
         packet = stub("packet", type: type)
         case type
-        when 1..4, 6..19, 21..49 then assert(Net::SSH::Transport::Algorithms.allowed_packet?(packet), "#{type} should be allowed during key exchange")
-        else assert(!Net::SSH::Transport::Algorithms.allowed_packet?(packet), "#{type} should not be allowed during key exchange")
+        when 1..4, 6..19, 21..49 then assert(Net::BloomfireSSH::Transport::Algorithms.allowed_packet?(packet), "#{type} should be allowed during key exchange")
+        else assert(!Net::BloomfireSSH::Transport::Algorithms.allowed_packet?(packet), "#{type} should not be allowed during key exchange")
         end
       end
     end
@@ -42,12 +42,12 @@ module Transport
     end
 
     def test_constructor_with_known_hosts_reporting_known_host_key_should_use_that_host_key_type
-      Net::SSH::KnownHosts.expects(:search_for).with("net.ssh.test,127.0.0.1", {}).returns([stub("key", ssh_type: "ssh-dss")])
+      Net::BloomfireSSH::KnownHosts.expects(:search_for).with("net.ssh.test,127.0.0.1", {}).returns([stub("key", ssh_type: "ssh-dss")])
       assert_equal %w[ssh-dss] + ed_ec_host_keys + %w[ssh-rsa-cert-v01@openssh.com ssh-rsa-cert-v00@openssh.com ssh-rsa], algorithms[:host_key]
     end
 
     def ed_host_keys
-      if Net::SSH::Authentication::ED25519Loader::LOADED
+      if Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
         %w[ssh-ed25519-cert-v01@openssh.com ssh-ed25519]
       else
         []
@@ -139,7 +139,7 @@ module Transport
     end
 
     def test_constructor_with_append_to_default
-      default_host_keys = Net::SSH::Transport::Algorithms::ALGORITHMS[:host_key]
+      default_host_keys = Net::BloomfireSSH::Transport::Algorithms::ALGORITHMS[:host_key]
       assert_equal default_host_keys, algorithms(host_key: '+ssh-dss')[:host_key]
     end
 
@@ -182,7 +182,7 @@ module Transport
       kexinit kex: "diffie-hellman-group1-sha1"
       transport.expect do |t,buffer|
         assert_kexinit(buffer)
-        install_mock_key_exchange(buffer, kex: Net::SSH::Transport::Kex::DiffieHellmanGroup1SHA1)
+        install_mock_key_exchange(buffer, kex: Net::BloomfireSSH::Transport::Kex::DiffieHellmanGroup1SHA1)
       end
       algorithms.accept_kexinit(kexinit)
     end
@@ -190,7 +190,7 @@ module Transport
     def test_key_exchange_when_server_does_not_support_any_preferred_kex_should_raise_error
       kexinit kex: "something-obscure"
       transport.expect { |t,buffer| assert_kexinit(buffer) }
-      assert_raises(Net::SSH::Exception) { algorithms.accept_kexinit(kexinit) }
+      assert_raises(Net::BloomfireSSH::Exception) { algorithms.accept_kexinit(kexinit) }
     end
 
     def test_allow_when_not_pending_should_be_true_for_all_packets
@@ -282,16 +282,16 @@ module Transport
     private
 
     def install_mock_key_exchange(buffer, options={})
-      kex = options[:kex] || Net::SSH::Transport::Kex::DiffieHellmanGroupExchangeSHA256
+      kex = options[:kex] || Net::BloomfireSSH::Transport::Kex::DiffieHellmanGroupExchangeSHA256
 
-      Net::SSH::Transport::Kex::MAP.each do |name, klass|
+      Net::BloomfireSSH::Transport::Kex::MAP.each do |name, klass|
         next if klass == kex
         klass.expects(:new).never
       end
 
       kex.expects(:new)
          .with(algorithms, transport,
-          client_version_string: Net::SSH::Transport::ServerVersion::PROTO_VERSION,
+          client_version_string: Net::BloomfireSSH::Transport::ServerVersion::PROTO_VERSION,
           server_version_string: transport.server_version.version,
           server_algorithm_packet: kexinit.to_s,
           client_algorithm_packet: buffer.to_s,
@@ -303,16 +303,16 @@ module Transport
 
     def install_mock_algorithm_lookups(options={})
       params = { shared: shared_secret.to_ssh, hash: session_id, digester: hashing_algorithm }
-      Net::SSH::Transport::CipherFactory.expects(:get)
+      Net::BloomfireSSH::Transport::CipherFactory.expects(:get)
                                         .with(options[:client_cipher] || "aes256-ctr", params.merge(iv: key("A"), key: key("C"), encrypt: true))
                                         .returns(:client_cipher)
 
-      Net::SSH::Transport::CipherFactory.expects(:get)
+      Net::BloomfireSSH::Transport::CipherFactory.expects(:get)
                                         .with(options[:server_cipher] || "aes256-ctr", params.merge(iv: key("B"), key: key("D"), decrypt: true))
                                         .returns(:server_cipher)
 
-      Net::SSH::Transport::HMAC.expects(:get).with(options[:client_hmac] || "hmac-sha2-256", key("E"), params).returns(:client_hmac)
-      Net::SSH::Transport::HMAC.expects(:get).with(options[:server_hmac] || "hmac-sha2-256", key("F"), params).returns(:server_hmac)
+      Net::BloomfireSSH::Transport::HMAC.expects(:get).with(options[:client_hmac] || "hmac-sha2-256", key("E"), params).returns(:client_hmac)
+      Net::BloomfireSSH::Transport::HMAC.expects(:get).with(options[:server_hmac] || "hmac-sha2-256", key("F"), params).returns(:server_hmac)
     end
 
     def shared_secret
@@ -332,7 +332,7 @@ module Transport
     end
 
     def cipher(type, options={})
-      Net::SSH::Transport::CipherFactory.get(type, options)
+      Net::BloomfireSSH::Transport::CipherFactory.get(type, options)
     end
 
     def kexinit(options={})
@@ -379,7 +379,7 @@ module Transport
     end
 
     def algorithms(algrothms_options={}, transport_options={})
-      @algorithms ||= Net::SSH::Transport::Algorithms.new(
+      @algorithms ||= Net::BloomfireSSH::Transport::Algorithms.new(
         transport(transport_options),
         algrothms_options
       )

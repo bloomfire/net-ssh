@@ -3,19 +3,19 @@ require 'net/ssh/connection/constants'
 require 'net/ssh/connection/term'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Connection
 
       # The channel abstraction. Multiple "channels" can be multiplexed onto a
       # single SSH channel, each operating independently and seemingly in parallel.
       # This class represents a single such channel. Most operations performed
-      # with the Net::SSH library will involve using one or more channels.
+      # with the Net::BloomfireSSH library will involve using one or more channels.
       #
       # Channels are intended to be used asynchronously. You request that one be
       # opened (via Connection::Session#open_channel), and when it is opened, your
       # callback is invoked. Then, you set various other callbacks on the newly
       # opened channel, which are called in response to the corresponding events.
-      # Programming with Net::SSH works best if you think of your programs as
+      # Programming with Net::BloomfireSSH works best if you think of your programs as
       # state machines. Complex programs are best implemented as objects that
       # wrap a channel. See Net::SCP and Net::SFTP for examples of how complex
       # state machines can be built on top of the SSH protocol.
@@ -48,7 +48,7 @@ module Net
       #
       # Note that data sent across SSH channels are governed by maximum packet
       # sizes and maximum window sizes. These details are managed internally
-      # by Net::SSH::Connection::Channel, so you may remain blissfully ignorant
+      # by Net::BloomfireSSH::Connection::Channel, so you may remain blissfully ignorant
       # if you so desire, but you can always inspect the current maximums, as
       # well as the remaining window size, using the reader attributes for those
       # values.
@@ -56,7 +56,7 @@ module Net
         include Loggable
         include Constants
     
-        # The local id for this channel, assigned by the Net::SSH::Connection::Session instance.
+        # The local id for this channel, assigned by the Net::BloomfireSSH::Connection::Session instance.
         attr_reader :local_id
     
         # The remote id for this channel, assigned by the remote host.
@@ -65,7 +65,7 @@ module Net
         # The type of this channel, usually "session".
         attr_reader :type
     
-        # The underlying Net::SSH::Connection::Session instance that supports this channel.
+        # The underlying Net::BloomfireSSH::Connection::Session instance that supports this channel.
         attr_reader :connection
     
         # The maximum packet size that the local host can receive.
@@ -433,14 +433,14 @@ module Net
         # Registers a callback to be invoked when a channel request of the given
         # type is received. The callback will receive the channel as the first
         # argument, and the associated (unparsed) data as the second. The data
-        # will be a Net::SSH::Buffer that you will need to parse, yourself,
+        # will be a Net::BloomfireSSH::Buffer that you will need to parse, yourself,
         # according to the kind of request you are watching.
         #
-        # By default, if the request wants a reply, Net::SSH will send a
+        # By default, if the request wants a reply, Net::BloomfireSSH will send a
         # CHANNEL_SUCCESS response for any request that was handled by a registered
         # callback, and CHANNEL_FAILURE for any that wasn't, but if you want your
         # registered callback to result in a CHANNEL_FAILURE response, just raise
-        # Net::SSH::ChannelRequestFailed.
+        # Net::BloomfireSSH::ChannelRequestFailed.
         #
         # Some common channel requests that your programs might want to listen
         # for are:
@@ -463,7 +463,7 @@ module Net
     
         # Sends a new channel request with the given name. The extra +data+
         # parameter must either be empty, or consist of an even number of
-        # arguments. See Net::SSH::Buffer.from for a description of their format.
+        # arguments. See Net::BloomfireSSH::Buffer.from for a description of their format.
         # If a block is given, it is registered as a callback for a pending
         # request, and the packet will be flagged so that the server knows a
         # reply is required. If no block is given, the server will send no
@@ -493,7 +493,7 @@ module Net
           pending_requests << callback if callback
         end
     
-        public # these methods are public, but for Net::SSH internal use only
+        public # these methods are public, but for Net::BloomfireSSH internal use only
     
         # Enqueues pending output at the connection as CHANNEL_DATA packets. This
         # does nothing if the channel has not yet been confirmed open (see

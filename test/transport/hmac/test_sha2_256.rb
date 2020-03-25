@@ -30,7 +30,7 @@ module Transport
       private
 
       def subject
-        Net::SSH::Transport::HMAC::SHA2_256
+        Net::BloomfireSSH::Transport::HMAC::SHA2_256
       end
     end
   end

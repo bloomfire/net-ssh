@@ -31,7 +31,7 @@ module Transport
     private
 
     def cipher
-      Net::SSH::Transport::IdentityCipher
+      Net::BloomfireSSH::Transport::IdentityCipher
     end
   end
 

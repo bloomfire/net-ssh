@@ -1,7 +1,7 @@
 require 'openssl'
 require 'delegate'
 
-module Net::SSH::Transport
+module Net::BloomfireSSH::Transport
   #:nodoc:
   class OpenSSLAESCTR < SimpleDelegator
     def initialize(original)

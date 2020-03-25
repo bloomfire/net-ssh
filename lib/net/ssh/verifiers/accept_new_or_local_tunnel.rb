@@ -1,7 +1,7 @@
 require 'net/ssh/verifiers/accept_new'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Verifiers
 
       # Basically the same as the AcceptNew verifier, but does not try to actually
@@ -22,7 +22,7 @@ module Net
         # A connection is potentially being tunnelled if the port is not 22,
         # and the ip refers to the localhost.
         def tunnelled?(args)
-          return false if args[:session].port == Net::SSH::Transport::Session::DEFAULT_PORT
+          return false if args[:session].port == Net::BloomfireSSH::Transport::Session::DEFAULT_PORT
 
           ip = args[:session].peer[:ip]
           return ip == "127.0.0.1" || ip == "::1"

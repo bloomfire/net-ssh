@@ -4,16 +4,16 @@ require 'ipaddr'
 require 'net/ssh/proxy/errors'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Proxy
 
       # An implementation of a SOCKS4 proxy. To use it, instantiate it, then
-      # pass the instantiated object via the :proxy key to Net::SSH.start:
+      # pass the instantiated object via the :proxy key to Net::BloomfireSSH.start:
       #
       #   require 'net/ssh/proxy/socks4'
       #
-      #   proxy = Net::SSH::Proxy::SOCKS4.new('proxy.host', proxy_port, :user => 'user')
-      #   Net::SSH.start('host', 'user', :proxy => proxy) do |ssh|
+      #   proxy = Net::BloomfireSSH::Proxy::SOCKS4.new('proxy.host', proxy_port, :user => 'user')
+      #   Net::BloomfireSSH.start('host', 'user', :proxy => proxy) do |ssh|
       #     ...
       #   end
       class SOCKS4

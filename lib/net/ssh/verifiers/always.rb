@@ -2,7 +2,7 @@ require 'net/ssh/errors'
 require 'net/ssh/known_hosts'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Verifiers
 
       # Does a strict host verification, looking the server up in the known

@@ -8,11 +8,11 @@ module NetSSH
     def setup
       authentication_session = mock('authentication_session')
       authentication_session.stubs(:authenticate).returns(true)
-      Net::SSH::Authentication::Session.stubs(:new).returns(authentication_session)
+      Net::BloomfireSSH::Authentication::Session.stubs(:new).returns(authentication_session)
       @transport_session = mock('transport_session')
-      Net::SSH::Transport::Session.stubs(:new).returns(@transport_session)
+      Net::BloomfireSSH::Transport::Session.stubs(:new).returns(@transport_session)
       @connection_session = mock('connection_session')
-      Net::SSH::Connection::Session.expects(new: connection_session)
+      Net::BloomfireSSH::Connection::Session.expects(new: connection_session)
     end
 
     def test_close_connection_on_exception
@@ -20,7 +20,7 @@ module NetSSH
       @connection_session.expects(:close).once
 
       begin
-        Net::SSH.start('localhost', 'testuser') { raise "error" }
+        Net::BloomfireSSH.start('localhost', 'testuser') { raise "error" }
       rescue RuntimeError
         # We aren't interested in the exception
       end
@@ -32,7 +32,7 @@ module NetSSH
       @connection_session.expects(:closed?).when(conn_open.is(false)).returns(true)
 
       begin
-        Net::SSH.start('localhost', 'testuser') do |ssh|
+        Net::BloomfireSSH.start('localhost', 'testuser') do |ssh|
           ssh.close
           raise "error"
         end
@@ -46,7 +46,7 @@ module NetSSH
       @connection_session.expects(:close).once
 
       val = 1
-      retval = Net::SSH.start('localhost', 'testuser') { val }
+      retval = Net::BloomfireSSH.start('localhost', 'testuser') { val }
       assert_equal(val, retval)
     end
   end

@@ -1,5 +1,5 @@
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport
       module Constants
     

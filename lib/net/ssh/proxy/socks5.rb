@@ -3,17 +3,17 @@ require 'net/ssh/ruby_compat'
 require 'net/ssh/proxy/errors'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Proxy
 
       # An implementation of a SOCKS5 proxy. To use it, instantiate it, then
-      # pass the instantiated object via the :proxy key to Net::SSH.start:
+      # pass the instantiated object via the :proxy key to Net::BloomfireSSH.start:
       #
       #   require 'net/ssh/proxy/socks5'
       #
-      #   proxy = Net::SSH::Proxy::SOCKS5.new('proxy.host', proxy_port,
+      #   proxy = Net::BloomfireSSH::Proxy::SOCKS5.new('proxy.host', proxy_port,
       #     :user => 'user', :password => "password")
-      #   Net::SSH.start('host', 'user', :proxy => proxy) do |ssh|
+      #   Net::BloomfireSSH.start('host', 'user', :proxy => proxy) do |ssh|
       #     ...
       #   end
       class SOCKS5
@@ -75,12 +75,12 @@ module Net
           version, method = socket.recv(2).unpack("CC")
           if version != VERSION
             socket.close
-            raise Net::SSH::Proxy::Error, "invalid SOCKS version (#{version})"
+            raise Net::BloomfireSSH::Proxy::Error, "invalid SOCKS version (#{version})"
           end
 
           if method == METHOD_NONE
             socket.close
-            raise Net::SSH::Proxy::Error, "no supported authorization methods"
+            raise Net::BloomfireSSH::Proxy::Error, "no supported authorization methods"
           end
 
           negotiate_password(socket) if method == METHOD_PASSWD

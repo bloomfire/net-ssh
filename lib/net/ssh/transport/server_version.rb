@@ -3,7 +3,7 @@ require 'net/ssh/loggable'
 require 'net/ssh/version'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport
 
       # Negotiates the SSH protocol version and trades information about server
@@ -16,8 +16,8 @@ module Net
       class ServerVersion
         include Loggable
     
-        # The SSH version string as reported by Net::SSH
-        PROTO_VERSION = "SSH-2.0-Ruby/Net::SSH_#{Net::SSH::Version::CURRENT} #{RUBY_PLATFORM}"
+        # The SSH version string as reported by Net::BloomfireSSH
+        PROTO_VERSION = "SSH-2.0-Ruby/Net::BloomfireSSH_#{Net::BloomfireSSH::Version::CURRENT} #{RUBY_PLATFORM}"
     
         # Any header text sent by the server prior to sending the version.
         attr_reader :header
@@ -46,15 +46,15 @@ module Net
           socket.write "#{PROTO_VERSION}\r\n"
           socket.flush
     
-          raise Net::SSH::ConnectionTimeout, "timeout during server version negotiating" if timeout && !IO.select([socket], nil, nil, timeout)
+          raise Net::BloomfireSSH::ConnectionTimeout, "timeout during server version negotiating" if timeout && !IO.select([socket], nil, nil, timeout)
           loop do
             @version = ""
             loop do
               begin
                 b = socket.readpartial(1)
-                raise Net::SSH::Disconnect, "connection closed by remote host" if b.nil?
+                raise Net::BloomfireSSH::Disconnect, "connection closed by remote host" if b.nil?
               rescue EOFError
-                raise Net::SSH::Disconnect, "connection closed by remote host"
+                raise Net::BloomfireSSH::Disconnect, "connection closed by remote host"
               end
               @version << b
               break if b == "\n"
@@ -66,9 +66,9 @@ module Net
           @version.chomp!
           debug { "remote is `#{@version}'" }
     
-          raise Net::SSH::Exception, "incompatible SSH version `#{@version}'" unless @version.match(/^SSH-(1\.99|2\.0)-/)
+          raise Net::BloomfireSSH::Exception, "incompatible SSH version `#{@version}'" unless @version.match(/^SSH-(1\.99|2\.0)-/)
     
-          raise Net::SSH::ConnectionTimeout, "timeout during client version negotiating" if timeout && !IO.select(nil, [socket], nil, timeout)
+          raise Net::BloomfireSSH::ConnectionTimeout, "timeout during client version negotiating" if timeout && !IO.select(nil, [socket], nil, timeout)
         end
       end
     end

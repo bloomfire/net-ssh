@@ -4,7 +4,7 @@ require 'net/ssh/authentication/pub_key_fingerprint'
 module OpenSSL
 
   # This class is originally defined in the OpenSSL module. As needed, methods
-  # have been added to it by the Net::SSH module for convenience in dealing with
+  # have been added to it by the Net::BloomfireSSH module for convenience in dealing with
   # SSH functionality.
   class BN
     # Converts a BN object to a string. The format used is that which is
@@ -26,11 +26,11 @@ module OpenSSL
   module PKey
 
     class PKey
-      include Net::SSH::Authentication::PubKeyFingerprint
+      include Net::BloomfireSSH::Authentication::PubKeyFingerprint
     end
 
     # This class is originally defined in the OpenSSL module. As needed, methods
-    # have been added to it by the Net::SSH module for convenience in dealing
+    # have been added to it by the Net::BloomfireSSH module for convenience in dealing
     # with SSH functionality.
     class DH
       # Determines whether the pub_key for this key is valid. (This algorithm
@@ -44,7 +44,7 @@ module OpenSSL
     end
 
     # This class is originally defined in the OpenSSL module. As needed, methods
-    # have been added to it by the Net::SSH module for convenience in dealing
+    # have been added to it by the Net::BloomfireSSH module for convenience in dealing
     # with SSH functionality.
     class RSA
       # Returns "ssh-rsa", which is the description of this key type used by the
@@ -59,7 +59,7 @@ module OpenSSL
 
       # Converts the key to a blob, according to the SSH2 protocol.
       def to_blob
-        @blob ||= Net::SSH::Buffer.from(:string, ssh_type, :bignum, e, :bignum, n).to_s
+        @blob ||= Net::BloomfireSSH::Buffer.from(:string, ssh_type, :bignum, e, :bignum, n).to_s
       end
 
       # Verifies the given signature matches the given data.
@@ -74,7 +74,7 @@ module OpenSSL
     end
 
     # This class is originally defined in the OpenSSL module. As needed, methods
-    # have been added to it by the Net::SSH module for convenience in dealing
+    # have been added to it by the Net::BloomfireSSH module for convenience in dealing
     # with SSH functionality.
     class DSA
       # Returns "ssh-dss", which is the description of this key type used by the
@@ -89,7 +89,7 @@ module OpenSSL
 
       # Converts the key to a blob, according to the SSH2 protocol.
       def to_blob
-        @blob ||= Net::SSH::Buffer.from(:string, ssh_type,
+        @blob ||= Net::BloomfireSSH::Buffer.from(:string, ssh_type,
           :bignum, p, :bignum, q, :bignum, g, :bignum, pub_key).to_s
       end
 
@@ -123,7 +123,7 @@ module OpenSSL
 
     if defined?(OpenSSL::PKey::EC)
       # This class is originally defined in the OpenSSL module. As needed, methods
-      # have been added to it by the Net::SSH module for convenience in dealing
+      # have been added to it by the Net::BloomfireSSH module for convenience in dealing
       # with SSH functionality.
       class EC
         CurveNameAlias = {
@@ -140,7 +140,7 @@ module OpenSSL
 
         def self.read_keyblob(curve_name_in_type, buffer)
           curve_name_in_key = buffer.read_string
-          raise Net::SSH::Exception, "curve name mismatched (`#{curve_name_in_key}' with `#{curve_name_in_type}')" unless curve_name_in_type == curve_name_in_key
+          raise Net::BloomfireSSH::Exception, "curve name mismatched (`#{curve_name_in_key}' with `#{curve_name_in_type}')" unless curve_name_in_type == curve_name_in_key
           public_key_oct = buffer.read_string
           begin
             key = OpenSSL::PKey::EC.new(OpenSSL::PKey::EC::CurveNameAlias[curve_name_in_key])
@@ -182,7 +182,7 @@ module OpenSSL
 
         # Converts the key to a blob, according to the SSH2 protocol.
         def to_blob
-          @blob ||= Net::SSH::Buffer.from(:string, ssh_type,
+          @blob ||= Net::BloomfireSSH::Buffer.from(:string, ssh_type,
                                           :string, CurveNameAliasInv[self.group.curve_name],
                                           :mstring, self.public_key.to_bn.to_s(2)).to_s
           @blob
@@ -223,7 +223,7 @@ module OpenSSL
           sig_r = a1sig.value[0].value
           sig_s = a1sig.value[1].value
 
-          return Net::SSH::Buffer.from(:bignum, sig_r, :bignum, sig_s).to_s
+          return Net::BloomfireSSH::Buffer.from(:bignum, sig_r, :bignum, sig_s).to_s
         end
 
         class Point
@@ -235,7 +235,7 @@ module OpenSSL
 
           # Converts the key to a blob, according to the SSH2 protocol.
           def to_blob
-            @blob ||= Net::SSH::Buffer.from(:string, ssh_type,
+            @blob ||= Net::BloomfireSSH::Buffer.from(:string, ssh_type,
                                             :string, CurveNameAliasInv[self.group.curve_name],
                                             :mstring, self.to_bn.to_s(2)).to_s
             @blob

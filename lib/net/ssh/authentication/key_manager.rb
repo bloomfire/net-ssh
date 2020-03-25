@@ -4,11 +4,11 @@ require 'net/ssh/loggable'
 require 'net/ssh/authentication/agent'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
 
       # A trivial exception class used to report errors in the key manager.
-      class KeyManagerError < Net::SSH::Exception; end
+      class KeyManagerError < Net::BloomfireSSH::Exception; end
 
       # This class encapsulates all operations done by clients on a user's
       # private keys. In practice, the client should never need a reference
@@ -146,7 +146,7 @@ module Net
           end
 
           if info[:key]
-            return Net::SSH::Buffer.from(:string, identity.ssh_signature_type,
+            return Net::BloomfireSSH::Buffer.from(:string, identity.ssh_signature_type,
               :mstring, info[:key].ssh_do_sign(data.to_s)).to_s
           end
 

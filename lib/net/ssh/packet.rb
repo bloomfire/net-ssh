@@ -4,27 +4,27 @@ require 'net/ssh/authentication/constants'
 require 'net/ssh/connection/constants'
 
 module Net
-  module SSH
+  module BloomfireSSH
 
     # A specialization of Buffer that knows the format of certain common
     # packet types. It auto-parses those packet types, and allows them to
     # be accessed via the #[] accessor.
     #
     #   data = some_channel_request_packet
-    #   packet = Net::SSH::Packet.new(data)
+    #   packet = Net::BloomfireSSH::Packet.new(data)
     #
     #   p packet.type #-> 98 (CHANNEL_REQUEST)
     #   p packet[:request]
     #   p packet[:want_reply]
     #
-    # This is used exclusively internally by Net::SSH, and unless you're doing
-    # protocol-level manipulation or are extending Net::SSH in some way, you'll
+    # This is used exclusively internally by Net::BloomfireSSH, and unless you're doing
+    # protocol-level manipulation or are extending Net::BloomfireSSH in some way, you'll
     # never need to use this class directly.
     class Packet < Buffer
       @@types = {}
 
       # Register a new packet type that should be recognized and auto-parsed by
-      # Net::SSH::Packet. Note that any packet type that is not preregistered
+      # Net::BloomfireSSH::Packet. Note that any packet type that is not preregistered
       # will not be autoparsed.
       #
       # The +pairs+ parameter must be either empty, or an array of two-element
@@ -43,7 +43,7 @@ module Net
       #--
       # These are the recognized packet types. All other packet types will be
       # accepted, but not auto-parsed, requiring the client to parse the
-      # fields using the methods provided by Net::SSH::Buffer.
+      # fields using the methods provided by Net::BloomfireSSH::Buffer.
       #++
 
       register DISCONNECT,                %i[reason_code long], %i[description string], %i[language string]
@@ -72,7 +72,7 @@ module Net
       # Create a new packet from the given payload. This will automatically
       # parse the packet if it is one that has been previously registered with
       # Packet.register; otherwise, the packet will need to be manually parsed
-      # using the methods provided in the Net::SSH::Buffer superclass.
+      # using the methods provided in the Net::BloomfireSSH::Buffer superclass.
       def initialize(payload)
         @named_elements = {}
         super

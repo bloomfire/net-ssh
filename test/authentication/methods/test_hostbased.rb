@@ -57,7 +57,7 @@ module Authentication
       def signature_parameters(key)
         Proc.new do |given_key, data|
           next false unless given_key.to_blob == key.to_blob
-          buffer = Net::SSH::Buffer.new(data)
+          buffer = Net::BloomfireSSH::Buffer.new(data)
           buffer.read_string == "abcxyz123"      && # session-id
           buffer.read_byte   == USERAUTH_REQUEST && # type
           verify_userauth_request_packet(buffer, key)
@@ -89,7 +89,7 @@ module Authentication
 
       def subject(options={})
         options[:key_manager] = key_manager(options) unless options.key?(:key_manager)
-        @subject ||= Net::SSH::Authentication::Methods::Hostbased.new(session(options), options)
+        @subject ||= Net::BloomfireSSH::Authentication::Methods::Hostbased.new(session(options), options)
       end
 
       def socket(options={})

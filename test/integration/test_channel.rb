@@ -48,9 +48,9 @@ class TestChannel < NetSSHTest
 
   def test_transport_close_before_channel_close_should_raise
     setup_ssh_env do
-      proxy = Net::SSH::Proxy::Command.new("/bin/nc localhost 22")
+      proxy = Net::BloomfireSSH::Proxy::Command.new("/bin/nc localhost 22")
       res = nil
-      Net::SSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
+      Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
         chanell_success_handler = lambda do
           sleep(0.1)
           system("killall /bin/nc")
@@ -69,9 +69,9 @@ class TestChannel < NetSSHTest
 
   def test_transport_close_after_channel_close_should_not_raise
     setup_ssh_env do
-      proxy = Net::SSH::Proxy::Command.new("/bin/nc localhost 22")
+      proxy = Net::BloomfireSSH::Proxy::Command.new("/bin/nc localhost 22")
       res = nil
-      Net::SSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
+      Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
         chanell_success_handler = lambda do
           sleep(0.1)
           system("killall /bin/nc")
@@ -90,7 +90,7 @@ class TestChannel < NetSSHTest
 
   def test_transport_close_should_remote_close_channels
     setup_ssh_env do
-      Net::SSH.start(*ssh_start_params) do |ssh|
+      Net::BloomfireSSH.start(*ssh_start_params) do |ssh|
         channel = ssh.open_channel do
           ssh.transport.socket.close
         end

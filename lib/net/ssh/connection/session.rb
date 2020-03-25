@@ -7,7 +7,7 @@ require 'net/ssh/connection/keepalive'
 require 'net/ssh/connection/event_loop'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Connection
 
       # A session class representing the connection service running on top of
@@ -18,12 +18,12 @@ module Net
       # port forwarding, SFTP, SCP, etc.).
       #
       # You will rarely (if ever) need to instantiate this class directly; rather,
-      # you'll almost always use Net::SSH.start to initialize a new network
+      # you'll almost always use Net::BloomfireSSH.start to initialize a new network
       # connection, authenticate a user, and return a new connection session,
       # all in one call.
       #
-      #   Net::SSH.start("localhost", "user") do |ssh|
-      #     # 'ssh' is an instance of Net::SSH::Connection::Session
+      #   Net::BloomfireSSH.start("localhost", "user") do |ssh|
+      #     # 'ssh' is an instance of Net::BloomfireSSH::Connection::Session
       #     ssh.exec! "/etc/init.d/some_process start"
       #   end
       class Session
@@ -33,7 +33,7 @@ module Net
         # Default IO.select timeout threshold
         DEFAULT_IO_SELECT_TIMEOUT = 300
     
-        # The underlying transport layer abstraction (see Net::SSH::Transport::Session).
+        # The underlying transport layer abstraction (see Net::BloomfireSSH::Transport::Session).
         attr_reader :transport
     
         # The map of options that were used to initialize this instance.
@@ -125,7 +125,7 @@ module Net
           channels.each { |id, channel| channel.close }
           begin
             loop(0.1) { channels.any? }
-          rescue Net::SSH::Disconnect
+          rescue Net::BloomfireSSH::Disconnect
             raise unless channels.empty?
           end
           transport.close
@@ -204,14 +204,14 @@ module Net
         # frequently it can make your CPU quite busy!
         #
         # This will also cause all active channels to be processed once each (see
-        # Net::SSH::Connection::Channel#on_process).
+        # Net::BloomfireSSH::Connection::Channel#on_process).
         #
         # TODO revise example
         #
-        #   # process multiple Net::SSH connections in parallel
+        #   # process multiple Net::BloomfireSSH connections in parallel
         #   connections = [
-        #     Net::SSH.start("host1", ...),
-        #     Net::SSH.start("host2", ...)
+        #     Net::BloomfireSSH.start("host1", ...),
+        #     Net::BloomfireSSH.start("host2", ...)
         #   ]
         #
         #   connections.each do |ssh|
@@ -232,7 +232,7 @@ module Net
         end
     
         # This is called internally as part of #process. It dispatches any
-        # available incoming packets, and then runs Net::SSH::Connection::Channel#process
+        # available incoming packets, and then runs Net::BloomfireSSH::Connection::Channel#process
         # for any active channels. If a block is given, it is invoked at the
         # start of the method and again at the end, and if the block ever returns
         # false, this method returns false. Otherwise, it returns true.
@@ -265,7 +265,7 @@ module Net
     
         # It loops over the given arrays of reader IO's and writer IO's,
         # processing them as needed, and
-        # then calls Net::SSH::Transport::Session#rekey_as_needed to allow the
+        # then calls Net::BloomfireSSH::Transport::Session#rekey_as_needed to allow the
         # transport layer to rekey. Then returns true.
         def ev_do_handle_events(readers, writers)
           Array(readers).each do |reader|
@@ -284,7 +284,7 @@ module Net
           end
         end
     
-        # calls Net::SSH::Transport::Session#rekey_as_needed to allow the
+        # calls Net::BloomfireSSH::Transport::Session#rekey_as_needed to allow the
         # transport layer to rekey
         def ev_do_postprocess(was_events)
           @keepalive.send_as_needed(was_events)
@@ -294,17 +294,17 @@ module Net
     
         # Send a global request of the given type. The +extra+ parameters must
         # be even in number, and conform to the same format as described for
-        # Net::SSH::Buffer.from. If a callback is not specified, the request will
+        # Net::BloomfireSSH::Buffer.from. If a callback is not specified, the request will
         # not require a response from the server, otherwise the server is required
         # to respond and indicate whether the request was successful or not. This
         # success or failure is indicated by the callback being invoked, with the
         # first parameter being true or false (success, or failure), and the second
         # being the packet itself.
         #
-        # Generally, Net::SSH will manage global requests that need to be sent
-        # (e.g. port forward requests and such are handled in the Net::SSH::Service::Forward
+        # Generally, Net::BloomfireSSH will manage global requests that need to be sent
+        # (e.g. port forward requests and such are handled in the Net::BloomfireSSH::Service::Forward
         # class, for instance). However, there may be times when you need to
-        # send a global request that isn't explicitly handled by Net::SSH, and so
+        # send a global request that isn't explicitly handled by Net::BloomfireSSH, and so
         # this method is available to you.
         #
         #   ssh.send_global_request("keep-alive@openssh.com")
@@ -320,7 +320,7 @@ module Net
         # of type "session", but if you know what you're doing you can select any
         # of the channel types supported by the SSH protocol. The +extra+ parameters
         # must be even in number and conform to the same format as described for
-        # Net::SSH::Buffer.from. If a callback is given, it will be invoked when
+        # Net::BloomfireSSH::Buffer.from. If a callback is given, it will be invoked when
         # the server confirms that the channel opened successfully. The sole parameter
         # for the callback is the channel object itself.
         #
@@ -366,7 +366,7 @@ module Net
         # (see Session#loop) in order for the command to actually execute.
         #
         # This is effectively identical to calling #open_channel, and then
-        # Net::SSH::Connection::Channel#exec, and then setting up the channel
+        # Net::BloomfireSSH::Connection::Channel#exec, and then setting up the channel
         # callbacks. However, for most uses, this will be sufficient.
         #
         #   ssh.exec "grep something /some/files" do |ch, stream, data|
@@ -436,7 +436,7 @@ module Net
         # Enqueues a message to be sent to the server as soon as the socket is
         # available for writing. Most programs will never need to call this, but
         # if you are implementing an extension to the SSH protocol, or if you
-        # need to send a packet that Net::SSH does not directly support, you can
+        # need to send a packet that Net::BloomfireSSH does not directly support, you can
         # use this to send it.
         #
         #  ssh.send_message(Buffer.from(:byte, REQUEST_SUCCESS).to_s)
@@ -449,7 +449,7 @@ module Net
         # the io will merely have its #fill method invoked.
         #
         # Any +io+ value passed to this method _must_ have mixed into it the
-        # Net::SSH::BufferedIo functionality, typically by calling #extend on the
+        # Net::BloomfireSSH::BufferedIo functionality, typically by calling #extend on the
         # object.
         #
         # The following example executes a process on the remote server, opens
@@ -461,7 +461,7 @@ module Net
         #       abort "can't execute!" unless success
         #
         #       io = TCPSocket.new(somewhere, port)
-        #       io.extend(Net::SSH::BufferedIo)
+        #       io.extend(Net::BloomfireSSH::BufferedIo)
         #       ssh.listen_to(io)
         #
         #       ch.on_process do
@@ -488,7 +488,7 @@ module Net
           listeners.delete(io)
         end
     
-        # Returns a reference to the Net::SSH::Service::Forward service, which can
+        # Returns a reference to the Net::BloomfireSSH::Service::Forward service, which can
         # be used for forwarding ports over SSH.
         def forward
           @forward ||= Service::Forward.new(self)
@@ -501,7 +501,7 @@ module Net
         # reason. Otherwise, the channel will be opened and a confirmation message
         # sent to the server.
         #
-        # This is used by the Net::SSH::Service::Forward service to open a channel
+        # This is used by the Net::BloomfireSSH::Service::Forward service to open a channel
         # when a remote forwarded port receives a connection. However, you are
         # welcome to register handlers for other channel types, as needed.
         def on_open_channel(type, &block)
@@ -544,13 +544,13 @@ module Net
         # appropriate. Returns as soon as there are no more pending packets.
         def dispatch_incoming_packets(raise_disconnect_errors: true)
           while packet = transport.poll_message
-            raise Net::SSH::Exception, "unexpected response #{packet.type} (#{packet.inspect})" unless MAP.key?(packet.type)
+            raise Net::BloomfireSSH::Exception, "unexpected response #{packet.type} (#{packet.inspect})" unless MAP.key?(packet.type)
     
             send(MAP[packet.type], packet)
           end
         rescue StandardError
           force_channel_cleanup_on_close if closed?
-          raise if raise_disconnect_errors || !$!.is_a?(Net::SSH::Disconnect)
+          raise if raise_disconnect_errors || !$!.is_a?(Net::BloomfireSSH::Disconnect)
         end
     
         # Returns the next available channel id to be assigned, and increments

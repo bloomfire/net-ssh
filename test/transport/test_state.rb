@@ -36,7 +36,7 @@ module Transport
       assert_nil state.rekey_limit
 
       assert_equal "identity", state.cipher.name
-      assert_instance_of Net::SSH::Transport::HMAC::None, state.hmac
+      assert_instance_of Net::BloomfireSSH::Transport::HMAC::None, state.hmac
     end
 
     def test_increment_should_increment_counters
@@ -173,7 +173,7 @@ module Transport
     end
 
     def state
-      @state ||= Net::SSH::Transport::State.new(socket, :test)
+      @state ||= Net::BloomfireSSH::Transport::State.new(socket, :test)
     end
   end
 

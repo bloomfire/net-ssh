@@ -25,7 +25,7 @@ CLEAN.include ['pkg', 'rdoc']
 name = "net-ssh"
 
 require_relative "lib/net/ssh/version"
-version = Net::SSH::Version::CURRENT
+version = Net::BloomfireSSH::Version::CURRENT
 
 extra_files = %w[LICENSE.txt THANKS.txt CHANGES.txt]
 RDoc::Task.new do |rdoc|
@@ -95,7 +95,7 @@ Rake::TestTask.new do |t|
   t.test_files = test_files
 end
 
-desc "Run tests of Net::SSH:Test"
+desc "Run tests of Net::BloomfireSSH:Test"
 Rake::TestTask.new do |t|
   t.name = "test_test"
   # we need to run test/test separatedly as it hacks io + other modules

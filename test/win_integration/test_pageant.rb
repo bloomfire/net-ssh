@@ -23,7 +23,7 @@ module Authentication
       end
   
       def test_agent_should_raise_without_pagent
-        assert_raises Net::SSH::Authentication::AgentNotAvailable do
+        assert_raises Net::BloomfireSSH::Authentication::AgentNotAvailable do
           agent.negotiate!
         end
       end
@@ -32,7 +32,7 @@ module Authentication
   
       def agent(auto=:connect)
         @agent ||= begin
-          agent = Net::SSH::Authentication::Agent.new
+          agent = Net::BloomfireSSH::Authentication::Agent.new
           agent.connect! if auto == :connect
           agent
         end

@@ -101,7 +101,7 @@ class TestForward < ForwardTestBase
 
   def test_in_file_no_password
     setup_ssh_env do
-      ret = Net::SSH.start(*ssh_start_params) do |ssh|
+      ret = Net::BloomfireSSH.start(*ssh_start_params) do |ssh|
         ssh.exec! 'echo "hello from:$USER"'
       end
       assert_equal "hello from:net_ssh_1\n", ret
@@ -110,7 +110,7 @@ class TestForward < ForwardTestBase
 
   def test_local_ephemeral_port_should_work_correctly
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
 
       assert_nothing_raised do
         assigned_port = session.forward.local(0, localhost, 22)
@@ -122,7 +122,7 @@ class TestForward < ForwardTestBase
 
   def test_remote_ephemeral_port_should_work_correctly
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
 
       assert_nothing_raised do
         session.forward.remote(22, localhost, 0, localhost)
@@ -136,7 +136,7 @@ class TestForward < ForwardTestBase
 
   def test_remote_callback_should_fire
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
 
       assert_nothing_raised do
         got_port = nil
@@ -158,14 +158,14 @@ class TestForward < ForwardTestBase
 
   def test_remote_callback_should_fire_on_error_and_still_throw_exception
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
 
       assert_nothing_raised do
         session.forward.remote(22, localhost, 22, localhost) do |port|
           assert_operator port, :==, :error
         end
       end
-      assert_raises(Net::SSH::Exception) do
+      assert_raises(Net::BloomfireSSH::Exception) do
         session.loop { true }
       end
     end
@@ -173,7 +173,7 @@ class TestForward < ForwardTestBase
 
   def test_remote_callback_should_fire_on_error_but_not_throw_exception_if_asked_not_to
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
 
       assert_nothing_raised do
         got_port = nil
@@ -191,7 +191,7 @@ class TestForward < ForwardTestBase
 
   def test_loop_should_not_abort_when_local_side_of_forward_is_closed
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server_exc = Queue.new
       server = start_server_sending_lot_of_data(server_exc)
       remote_port = server.addr[1]
@@ -215,7 +215,7 @@ class TestForward < ForwardTestBase
 
   def test_loop_should_not_abort_when_local_side_of_forward_is_reset
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server_exc = Queue.new
       server = start_server_sending_lot_of_data(server_exc)
       remote_port = server.addr[1]
@@ -240,7 +240,7 @@ class TestForward < ForwardTestBase
 
   def test_loop_should_not_abort_when_server_side_of_forward_is_closed
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = start_server_closing_soon
       remote_port = server.addr[1]
       local_port = 0 # request ephemeral port
@@ -277,7 +277,7 @@ class TestForward < ForwardTestBase
   def test_client_close_should_be_handled_remote
     setup_ssh_env do
       message = "This is a small message!" * 1000
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server_done = Queue.new
       server = start_server do |client|
         begin
@@ -340,7 +340,7 @@ class TestForward < ForwardTestBase
         client.puts "Hallo"
       end
       proxy = TCPProxy.new()
-      session = Net::SSH.start(*ssh_start_params(proxy: proxy))
+      session = Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy))
       remote_port = server.addr[1]
       local_port = session.forward.local(0, localhost, remote_port)
 
@@ -385,8 +385,8 @@ class TestForward < ForwardTestBase
         sleep(100)
         client.puts "Hallo"
       end
-      proxy = Net::SSH::Proxy::Command.new("/bin/nc localhost 22")
-      session = Net::SSH.start(*ssh_start_params(proxy: proxy))
+      proxy = Net::BloomfireSSH::Proxy::Command.new("/bin/nc localhost 22")
+      session = Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy))
       remote_port = server.addr[1]
       local_port = session.forward.local(0, localhost, remote_port)
 
@@ -422,7 +422,7 @@ class TestForward < ForwardTestBase
   def test_client_close_should_be_handled
     setup_ssh_env do
       message = "This is a small message!" * 1000
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server_done = Queue.new
       server = start_server do |client|
         begin
@@ -456,7 +456,7 @@ class TestForward < ForwardTestBase
   def test_server_eof_should_be_handled_remote
     setup_ssh_env do
       message = "This is a small message!"
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = start_server do |client|
         client.write message
         client.close
@@ -489,7 +489,7 @@ class TestForward < ForwardTestBase
   def test_server_eof_should_be_handled
     setup_ssh_env do
       message = "This is a small message!"
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = start_server do |client|
         client.write message
         client.close
@@ -529,7 +529,7 @@ class TestForward < ForwardTestBase
 
   def test_cannot_open_connection_should_allow_further_connections_on_different_forward
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = start_server do |client|
         _data = client.write "hello"
         client.close
@@ -559,7 +559,7 @@ class TestForward < ForwardTestBase
 
   def test_cannot_open_connection_should_allow_further_connections_on_same
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = TCPServer.open(0)
       # Forward to a non existing port
       remote_port = server.addr[1]
@@ -590,7 +590,7 @@ class TestForward < ForwardTestBase
 
   def test_cancel_local
     setup_ssh_env do
-      session = Net::SSH.start(*ssh_start_params)
+      session = Net::BloomfireSSH.start(*ssh_start_params)
       server = start_server(server) do |client|
         _data = client.write "hello"
         client.close
@@ -624,7 +624,7 @@ class TestForwardOnUnixSockets < ForwardTestBase
 
     def test_forward_local_unix_socket_to_remote_port
       setup_ssh_env do
-        session = Net::SSH.start(*ssh_start_params)
+        session = Net::BloomfireSSH.start(*ssh_start_params)
         server_exc = Queue.new
         server = start_server_sending_lot_of_data(server_exc)
         remote_port = server.addr[1]
@@ -664,7 +664,7 @@ class TestForwardOnUnixSockets < ForwardTestBase
           begin
             # We have our own sshd, give it a chance to come up before
             # listening.
-            Net::SSH.start(*ssh_start_params(port: port))
+            Net::BloomfireSSH.start(*ssh_start_params(port: port))
           rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
             sleep 0.25
             retry

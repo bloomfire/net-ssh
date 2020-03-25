@@ -23,27 +23,27 @@ require 'minitest/autorun'
 
 # clear the default files out so that tests don't get confused by existing
 # SSH config files.
-$_original_config_default_files = Net::SSH::Config.default_files.dup # rubocop:disable Style/GlobalVars
-Net::SSH::Config.default_files.clear
+$_original_config_default_files = Net::BloomfireSSH::Config.default_files.dup # rubocop:disable Style/GlobalVars
+Net::BloomfireSSH::Config.default_files.clear
 
 # Ensures SSH_AUTH_SOCK set outside of test scenario (e.g. on dev's machine) isn't messing up test assertions
 original_ssh_auth_sock, ENV['SSH_AUTH_SOCK'] = ENV['SSH_AUTH_SOCK'], nil
 Minitest.after_run { ENV['SSH_AUTH_SOCK'] = original_ssh_auth_sock }
 
 def with_restored_default_files(&block)
-  act_default_files = Net::SSH::Config.default_files.dup
+  act_default_files = Net::BloomfireSSH::Config.default_files.dup
   begin
-    Net::SSH::Config.default_files.clear
-    Net::SSH::Config.default_files.concat($_original_config_default_files) # rubocop:disable Style/GlobalVars
+    Net::BloomfireSSH::Config.default_files.clear
+    Net::BloomfireSSH::Config.default_files.concat($_original_config_default_files) # rubocop:disable Style/GlobalVars
     yield
   ensure
-    Net::SSH::Config.default_files.clear
-    Net::SSH::Config.default_files.concat(act_default_files)
+    Net::BloomfireSSH::Config.default_files.clear
+    Net::BloomfireSSH::Config.default_files.concat(act_default_files)
   end
 end
 
 def P(*args)
-  Net::SSH::Packet.new(Net::SSH::Buffer.from(*args))
+  Net::BloomfireSSH::Packet.new(Net::BloomfireSSH::Buffer.from(*args))
 end
 
 class NetSSHTest < Minitest::Test
@@ -69,7 +69,7 @@ class MockPrompt
   def success; end
 end
 
-class MockTransport < Net::SSH::Transport::Session
+class MockTransport < Net::BloomfireSSH::Transport::Session
   class BlockVerifier
     def initialize(block)
       @block = block
@@ -98,7 +98,7 @@ class MockTransport < Net::SSH::Transport::Session
     @options = options
     self.logger = options[:logger]
     self.host_as_string = "net.ssh.test,127.0.0.1"
-    self.server_version = OpenStruct.new(version: "SSH-2.0-Ruby/Net::SSH::Test")
+    self.server_version = OpenStruct.new(version: "SSH-2.0-Ruby/Net::BloomfireSSH::Test")
     @expectations = []
     @queue = []
     @hints = {}
@@ -108,12 +108,12 @@ class MockTransport < Net::SSH::Transport::Session
   end
 
   def send_message(message)
-    buffer = Net::SSH::Buffer.new(message.to_s)
+    buffer = Net::BloomfireSSH::Buffer.new(message.to_s)
     if @expectations.empty?
       raise "got #{message.to_s.inspect} but was not expecting anything"
     else
       block = @expectations.shift
-      block.call(self, Net::SSH::Packet.new(buffer))
+      block.call(self, Net::BloomfireSSH::Packet.new(buffer))
     end
   end
 

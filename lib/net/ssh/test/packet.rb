@@ -2,22 +2,22 @@ require 'net/ssh/connection/constants'
 require 'net/ssh/transport/constants'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Test
 
       # This is an abstract class, not to be instantiated directly, subclassed by
-      # Net::SSH::Test::LocalPacket and Net::SSH::Test::RemotePacket. It implements
+      # Net::BloomfireSSH::Test::LocalPacket and Net::BloomfireSSH::Test::RemotePacket. It implements
       # functionality common to those subclasses.
       #
       # These packets are not true packets, in that they don't represent what was
       # actually sent between the hosst; rather, they represent what was expected
-      # to be sent, as dictated by the script (Net::SSH::Test::Script). Thus,
+      # to be sent, as dictated by the script (Net::BloomfireSSH::Test::Script). Thus,
       # though they are defined with data elements, these data elements are used
-      # to either validate data that was sent by the local host (Net::SSH::Test::LocalPacket)
-      # or to mimic the sending of data by the remote host (Net::SSH::Test::RemotePacket).
+      # to either validate data that was sent by the local host (Net::BloomfireSSH::Test::LocalPacket)
+      # or to mimic the sending of data by the remote host (Net::BloomfireSSH::Test::RemotePacket).
       class Packet
-        include Net::SSH::Transport::Constants
-        include Net::SSH::Connection::Constants
+        include Net::BloomfireSSH::Transport::Constants
+        include Net::BloomfireSSH::Connection::Constants
 
         # Register a custom channel request. extra_parts is an array of types
         # of extra parameters
@@ -52,7 +52,7 @@ module Net
         # some elements may not have been fully realized, and were described as
         # Proc objects rather than atomic types. This invokes those Proc objects
         # and replaces them with their returned values. This allows for values
-        # like Net::SSH::Test::Channel#remote_id to be used in scripts before
+        # like Net::BloomfireSSH::Test::Channel#remote_id to be used in scripts before
         # the remote_id is known (since it is only known after a channel has been
         # confirmed open).
         def instantiate!
@@ -61,8 +61,8 @@ module Net
 
         # Returns an array of symbols describing the data elements for packets of
         # the same type as this packet. These types are used to either validate
-        # sent packets (Net::SSH::Test::LocalPacket) or build received packets
-        # (Net::SSH::Test::RemotePacket).
+        # sent packets (Net::BloomfireSSH::Test::LocalPacket) or build received packets
+        # (Net::BloomfireSSH::Test::RemotePacket).
         #
         # Not all packet types are defined here. As new packet types are required
         # (e.g., a unit test needs to test that the remote host sent a packet that

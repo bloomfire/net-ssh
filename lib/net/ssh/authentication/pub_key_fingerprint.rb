@@ -2,7 +2,7 @@
 require 'openssl'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       # Public key fingerprinting utility module - internal not part of API.
       # This is included in pubkey classes and called from there. All RSA, DSA, and ECC keys
@@ -11,8 +11,8 @@ module Net
       #     require 'net/ssh'
       #     my_pubkey_text = File.read('/path/to/id_ed25519.pub')
       #        #=> "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDB2NBh4GJPPUN1kXPMu8b633Xcv55WoKC3OkBjFAbzJ alice@example.com"
-      #     my_pubkey = Net::SSH::KeyFactory.load_data_public_key(my_pubkey_text)
-      #        #=> #<Net::SSH::Authentication::ED25519::PubKey:0x00007fc8e91819b0
+      #     my_pubkey = Net::BloomfireSSH::KeyFactory.load_data_public_key(my_pubkey_text)
+      #        #=> #<Net::BloomfireSSH::Authentication::ED25519::PubKey:0x00007fc8e91819b0
       #     my_pubkey.fingerprint
       #        #=> "2f:7f:97:21:76:a4:0f:38:c4:fe:d8:b4:6a:39:72:30"
       #     my_pubkey.fingerprint('SHA256')

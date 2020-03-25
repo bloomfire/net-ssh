@@ -1,7 +1,7 @@
 require 'io/console'
 
 module Net 
-  module SSH
+  module BloomfireSSH
 
     # Default prompt implementation, called for asking password from user.
     # It will never be instantiated directly, but will instead be created for
@@ -9,7 +9,7 @@ module Net
     #
     # A custom prompt objects can implement caching, or different UI. The prompt
     # object should implemnted a start method, which should return something implementing
-    # ask and success. Net::SSH uses it like:
+    # ask and success. Net::BloomfireSSH uses it like:
     #
     #   prompter = options[:password_prompt].start({type:'password'})
     #   while !ok && max_retries < 3

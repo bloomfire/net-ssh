@@ -2,7 +2,7 @@ require 'net/ssh/transport/constants'
 require 'net/ssh/transport/kex/diffie_hellman_group1_sha1'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport 
       module Kex
 
@@ -39,7 +39,7 @@ module Net
           end
       
           def build_signature_buffer(result)
-            response = Net::SSH::Buffer.new
+            response = Net::BloomfireSSH::Buffer.new
             response.write_string data[:client_version_string],
                                   data[:server_version_string],
                                   data[:client_algorithm_packet],
@@ -61,7 +61,7 @@ module Net
             # send the KEXECDH_INIT message
             ## byte     SSH_MSG_KEX_ECDH_INIT
             ## string   Q_C, client's ephemeral public key octet string
-            buffer = Net::SSH::Buffer.from(:byte, init, :mstring, ecdh.public_key.to_bn.to_s(2))
+            buffer = Net::BloomfireSSH::Buffer.from(:byte, init, :mstring, ecdh.public_key.to_bn.to_s(2))
             connection.send_message(buffer)
       
             # expect the following KEXECDH_REPLY message
@@ -70,11 +70,11 @@ module Net
             ## string   Q_S, server's ephemeral public key octet string
             ## string   the signature on the exchange hash
             buffer = connection.next_message
-            raise Net::SSH::Exception, "expected REPLY" unless buffer.type == reply
+            raise Net::BloomfireSSH::Exception, "expected REPLY" unless buffer.type == reply
       
             result = Hash.new
             result[:key_blob] = buffer.read_string
-            result[:server_key] = Net::SSH::Buffer.new(result[:key_blob]).read_key
+            result[:server_key] = Net::BloomfireSSH::Buffer.new(result[:key_blob]).read_key
             result[:server_ecdh_pubkey] = buffer.read_string
       
             # compute shared secret from server's public key and client's private key
@@ -82,10 +82,10 @@ module Net
                                               OpenSSL::BN.new(result[:server_ecdh_pubkey], 2))
             result[:shared_secret] = OpenSSL::BN.new(ecdh.dh_compute_key(pk), 2)
       
-            sig_buffer = Net::SSH::Buffer.new(buffer.read_string)
+            sig_buffer = Net::BloomfireSSH::Buffer.new(buffer.read_string)
             sig_type = sig_buffer.read_string
             if sig_type != algorithms.host_key_format
-              raise Net::SSH::Exception,
+              raise Net::BloomfireSSH::Exception,
               "host key algorithm mismatch for signature " +
                 "'#{sig_type}' != '#{algorithms.host_key_format}'"
             end

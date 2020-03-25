@@ -80,7 +80,7 @@ lib/net/ssh/verifiers/accept_new_or_local_tunnel.rb
 lib/net/ssh/verifiers/always.rb
 lib/net/ssh/verifiers/never.rb
 lib/net/ssh/version.rb
-net-ssh.gemspec
+net-ssh-bloomfire.gemspec
 setup.rb
 support/arcfour_check.rb
 support/ssh_tunnel_bug.rb

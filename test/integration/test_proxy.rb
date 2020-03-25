@@ -56,9 +56,9 @@ class TestProxy < NetSSHTest
 
   def test_smoke
     setup_ssh_env do
-      proxy = Net::SSH::Proxy::Command.new("/bin/nc localhost 22")
+      proxy = Net::BloomfireSSH::Proxy::Command.new("/bin/nc localhost 22")
       msg = 'echo123'
-      ret = Net::SSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
+      ret = Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
         ssh.exec! "echo \"$USER:#{msg}\""
       end
       assert_equal "net_ssh_1:#{msg}\n", ret
@@ -88,11 +88,11 @@ class TestProxy < NetSSHTest
     system("sudo sh -c 'echo 4096 > /proc/sys/fs/pipe-max-size'")
     begin
       setup_ssh_env do
-        proxy = Net::SSH::Proxy::Command.new("/usr/bin/pv --rate-limit 100k | /bin/nc localhost 22")
-        #proxy = Net::SSH::Proxy::Command.new("/bin/nc localhost 22")
+        proxy = Net::BloomfireSSH::Proxy::Command.new("/usr/bin/pv --rate-limit 100k | /bin/nc localhost 22")
+        #proxy = Net::BloomfireSSH::Proxy::Command.new("/bin/nc localhost 22")
         begin
           large_msg = 'echo123' * 30000
-          ok = Net::SSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
+          ok = Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
             with_spurious_write_wakeup_emulate do
               ret = ssh.exec! "echo \"$USER:#{large_msg}\""
               #assert_equal "net_ssh_1:#{large_msg}\n", ret
@@ -114,9 +114,9 @@ class TestProxy < NetSSHTest
   def test_proxy_jump_through_localhost
     setup_ssh_env do
       setup_gateway do |gwuser, gwhost|
-        proxy = Net::SSH::Proxy::Jump.new("#{gwuser}@#{gwhost}")
+        proxy = Net::BloomfireSSH::Proxy::Jump.new("#{gwuser}@#{gwhost}")
         #puts "ssh #{user}@#{localhost} -i #{@key_id_rsa} -J #{gwuser}@#{gwhost} -vvv"
-        output = Net::SSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
+        output = Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy)) do |ssh|
           ssh.exec! "echo \"$USER:echo123\""
         end
         assert_equal "net_ssh_1:echo123\n", output
@@ -138,10 +138,10 @@ class TestProxy < NetSSHTest
   end
   def test_does_close_proxy_on_proxy_failure
     setup_ssh_env do
-      proxy = DbgProxy.new(Net::SSH::Proxy::Command.new('sleep 2 && ssh -W %h:%p -o "PreferredAuthentications none" user@localhost'))
+      proxy = DbgProxy.new(Net::BloomfireSSH::Proxy::Command.new('sleep 2 && ssh -W %h:%p -o "PreferredAuthentications none" user@localhost'))
       msg = 'echo123'
-      assert_raises Errno::EPIPE, Net::SSH::Proxy::ConnectError do
-        Net::SSH.start(*ssh_start_params(proxy: proxy, password: 'bad', non_interactive: true, auth_methods: ['password'], verbose: :debug)) do |ssh|
+      assert_raises Errno::EPIPE, Net::BloomfireSSH::Proxy::ConnectError do
+        Net::BloomfireSSH.start(*ssh_start_params(proxy: proxy, password: 'bad', non_interactive: true, auth_methods: ['password'], verbose: :debug)) do |ssh|
           ssh.exec! "echo \"$USER:#{msg}\""
         end
       end

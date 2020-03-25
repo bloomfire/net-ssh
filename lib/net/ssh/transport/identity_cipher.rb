@@ -1,5 +1,5 @@
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport
 
       # A cipher that does nothing but pass the data through, unchanged. This

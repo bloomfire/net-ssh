@@ -9,7 +9,7 @@ module Transport
       private
   
         def subject
-          Net::SSH::Transport::Kex::DiffieHellmanGroupExchangeSHA256
+          Net::BloomfireSSH::Transport::Kex::DiffieHellmanGroupExchangeSHA256
         end
   
         def digest_type

@@ -4,7 +4,7 @@ require 'net/ssh/transport/key_expander'
 require 'net/ssh/transport/identity_cipher'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport
 
       # Implements a factory of OpenSSL cipher algorithms.
@@ -67,16 +67,16 @@ module Net
     
           if name =~ /-ctr(@openssh.org)?$/
             if ossl_name !~ /-ctr/
-              cipher.extend(Net::SSH::Transport::CTR)
+              cipher.extend(Net::BloomfireSSH::Transport::CTR)
             else
-              cipher = Net::SSH::Transport::OpenSSLAESCTR.new(cipher)
+              cipher = Net::BloomfireSSH::Transport::OpenSSLAESCTR.new(cipher)
             end
           end
-          cipher.iv = Net::SSH::Transport::KeyExpander.expand_key(cipher.iv_len, options[:iv], options) if ossl_name != "rc4"
+          cipher.iv = Net::BloomfireSSH::Transport::KeyExpander.expand_key(cipher.iv_len, options[:iv], options) if ossl_name != "rc4"
     
           key_len = KEY_LEN_OVERRIDE[name] || cipher.key_len
           cipher.key_len = key_len
-          cipher.key = Net::SSH::Transport::KeyExpander.expand_key(key_len, options[:key], options)
+          cipher.key = Net::BloomfireSSH::Transport::KeyExpander.expand_key(key_len, options[:key], options)
           cipher.update(" " * 1536) if (ossl_name == "rc4" && name != "arcfour")
     
           return cipher
@@ -102,7 +102,7 @@ module Net
               when "rc4"
                 8
               when /\-ctr/
-                Net::SSH::Transport::OpenSSLAESCTR.block_size
+                Net::BloomfireSSH::Transport::OpenSSLAESCTR.block_size
               else
                 cipher.block_size
               end

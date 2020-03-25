@@ -3,7 +3,7 @@ require 'net/ssh/transport/cipher_factory'
 require 'net/ssh/transport/hmac'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Transport
 
       # Encapsulates state information about one end of an SSH connection. Such

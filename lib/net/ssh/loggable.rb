@@ -1,16 +1,16 @@
 module Net 
-  module SSH
+  module BloomfireSSH
 
     # A simple module to make logging easier to deal with. It assumes that the
     # logger instance (if not nil) quacks like a Logger object (in Ruby's
-    # standard library). Although used primarily internally by Net::SSH, it
-    # can easily be used to add Net::SSH-like logging to your own programs.
+    # standard library). Although used primarily internally by Net::BloomfireSSH, it
+    # can easily be used to add Net::BloomfireSSH-like logging to your own programs.
     #
     #   class MyClass
-    #     include Net::SSH::Loggable
+    #     include Net::BloomfireSSH::Loggable
     #   end
     #
-    #   Net::SSH.start(...) do |ssh|
+    #   Net::BloomfireSSH.start(...) do |ssh|
     #     obj = MyClass.new
     #     obj.logger = ssh.logger
     #     ...

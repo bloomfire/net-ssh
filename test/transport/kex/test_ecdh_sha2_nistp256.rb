@@ -12,7 +12,7 @@ else
     module Kex
 
       class TestEcdhSHA2NistP256 < NetSSHTest
-        include Net::SSH::Transport::Constants
+        include Net::BloomfireSSH::Transport::Constants
 
         def setup
           @ecdh = @algorithms = @connection = @server_key =
@@ -29,21 +29,21 @@ else
 
         def test_exchange_keys_with_unverifiable_host_should_raise_exception
           connection.verifier { false }
-          assert_raises(Net::SSH::Exception) { exchange! }
+          assert_raises(Net::BloomfireSSH::Exception) { exchange! }
         end
 
         def test_exchange_keys_with_signature_key_type_mismatch_should_raise_exception
-          assert_raises(Net::SSH::Exception) { exchange! key_type: "ssh-dss" }
+          assert_raises(Net::BloomfireSSH::Exception) { exchange! key_type: "ssh-dss" }
         end
 
         def test_exchange_keys_with_host_key_type_mismatch_should_raise_exception
           algorithms host_key: "ssh-dss"
-          assert_raises(Net::SSH::Exception) { exchange! key_type: "ssh-dss" }
+          assert_raises(Net::BloomfireSSH::Exception) { exchange! key_type: "ssh-dss" }
         end
 
         def test_exchange_keys_when_server_signature_could_not_be_verified_should_raise_exception
           @signature = "1234567890"
-          assert_raises(Net::SSH::Exception) { exchange! }
+          assert_raises(Net::BloomfireSSH::Exception) { exchange! }
         end
 
         def test_exchange_keys_should_pass_expected_parameters_to_host_key_verifier
@@ -73,7 +73,7 @@ else
         end
 
         def subject
-          Net::SSH::Transport::Kex::EcdhSHA2NistP256
+          Net::BloomfireSSH::Transport::Kex::EcdhSHA2NistP256
         end
 
         def ecparam
@@ -138,11 +138,11 @@ else
 
         def session_id
           @session_id ||= begin
-            buffer = Net::SSH::Buffer.from(:string, packet_data[:client_version_string],
+            buffer = Net::BloomfireSSH::Buffer.from(:string, packet_data[:client_version_string],
                                            :string, packet_data[:server_version_string],
                                            :string, packet_data[:client_algorithm_packet],
                                            :string, packet_data[:server_algorithm_packet],
-                                           :string, Net::SSH::Buffer.from(:key, server_host_key),
+                                           :string, Net::BloomfireSSH::Buffer.from(:key, server_host_key),
                                            :string, ecdh.ecdh.public_key.to_bn.to_s(2),
                                            :string, server_ecdh_pubkey.to_bn.to_s(2),
                                            :bignum, shared_secret)
@@ -155,7 +155,7 @@ else
         end
 
         def b(*args)
-          Net::SSH::Buffer.from(*args)
+          Net::BloomfireSSH::Buffer.from(*args)
         end
       end
     end

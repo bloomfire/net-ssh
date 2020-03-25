@@ -12,24 +12,24 @@ class TestConfig < NetSSHTest
   def test_load_for_non_existant_file_should_return_empty_hash
     bogus_file = File.expand_path("/bogus/file")
     File.expects(:readable?).with(bogus_file).returns(false)
-    assert_equal({}, Net::SSH::Config.load(bogus_file, "host.name"))
+    assert_equal({}, Net::BloomfireSSH::Config.load(bogus_file, "host.name"))
   end
 
   def test_load_should_expand_path
     expected = File.expand_path("~/.ssh/config")
     File.expects(:readable?).with(expected).returns(false)
-    Net::SSH::Config.load("~/.ssh/config", "host.name")
+    Net::BloomfireSSH::Config.load("~/.ssh/config", "host.name")
   end
 
   def test_load_with_exact_host_match_should_load_that_section
-    config = Net::SSH::Config.load(config(:exact_match), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:exact_match), "test.host")
     assert config['compression']
     assert config['forwardagent']
     assert_equal 1234, config['port']
   end
 
   def test_load_with_wild_card_matches_should_load_all_matches_with_first_match_taking_precedence
-    config = Net::SSH::Config.load(config(:wild_cards), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:wild_cards), "test.host")
     assert_equal 1234, config['port']
     assert !config['compression']
     assert config['forwardagent']
@@ -38,7 +38,7 @@ class TestConfig < NetSSHTest
   end
 
   def test_load_with_wild_card_and_negative_pattern_does_not_match
-    config = Net::SSH::Config.load(config(:negative_match), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:negative_match), "test.host")
     assert_equal 9876, config['port']
     assert !config.key?('compression')
   end
@@ -50,7 +50,7 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "test.host")
+      config = Net::BloomfireSSH::Config.load(f, "test.host")
       assert_equal 1234, config['port']
     end
   end
@@ -61,10 +61,10 @@ class TestConfig < NetSSHTest
         CheckHostIP no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, 'foo')
+      config = Net::BloomfireSSH::Config.load(f, 'foo')
       assert_equal false, config['checkhostip']
 
-      config = Net::SSH::Config.for("foo", [f])
+      config = Net::BloomfireSSH::Config.for("foo", [f])
       assert_equal false, config[:check_host_ip]
     end
   end
@@ -76,15 +76,15 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "test.host")
+      config = Net::BloomfireSSH::Config.load(f, "test.host")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "|")
+      config = Net::BloomfireSSH::Config.load(f, "|")
       assert_equal 1234, config['port']
     end
   end
 
   def test_for_should_load_all_files_and_translate_to_net_ssh_options
-    config = Net::SSH::Config.for("test.host", [config(:exact_match), config(:wild_cards)])
+    config = Net::BloomfireSSH::Config.for("test.host", [config(:exact_match), config(:wild_cards)])
     assert_equal 1234, config[:port]
     assert config[:compression]
     assert config[:forward_agent]
@@ -93,28 +93,28 @@ class TestConfig < NetSSHTest
   end
 
   def test_load_with_no_host
-    config = Net::SSH::Config.load(config(:nohost), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:nohost), "test.host")
     assert_equal %w(~/.ssh/id_dsa ~/.ssh/id_rsa), config['identityfile']
     assert_equal 1985, config['port']
   end
 
   def test_load_with_multiple_hosts
-    config = Net::SSH::Config.load(config(:multihost), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:multihost), "test.host")
     assert config['compression']
     assert_equal '2G', config['rekeylimit']
     assert_equal 1980, config['port']
   end
 
   def test_load_with_multiple_hosts_and_config_should_match_for_both
-    aconfig = Net::SSH::Config.load(config(:multihost), "test.host")
-    bconfig = Net::SSH::Config.load(config(:multihost), "other.host")
+    aconfig = Net::BloomfireSSH::Config.load(config(:multihost), "test.host")
+    bconfig = Net::BloomfireSSH::Config.load(config(:multihost), "other.host")
     assert_equal aconfig['port'], bconfig['port']
     assert_equal aconfig['compression'], bconfig['compression']
     assert_equal aconfig['rekeylimit'], bconfig['rekeylimit']
   end
 
   def test_load_should_parse_equal_sign_delimiters
-    config = Net::SSH::Config.load(config(:eqsign), "test.test")
+    config = Net::BloomfireSSH::Config.load(config(:eqsign), "test.test")
     assert config['compression']
     assert_equal 1234, config['port']
   end
@@ -142,7 +142,7 @@ class TestConfig < NetSSHTest
       'fingerprinthash'         => 'MD5'
     }
 
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
 
     assert_equal %w(a b c), net_ssh[:encryption]
     assert_equal true,      net_ssh[:compression]
@@ -173,7 +173,7 @@ class TestConfig < NetSSHTest
       'kbdinteractiveauthentication'    => false
     }
 
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
 
     assert_equal %w(none), net_ssh[:auth_methods].sort
   end
@@ -187,7 +187,7 @@ class TestConfig < NetSSHTest
       'kbdinteractiveauthentication'    => true
     }
 
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
 
     assert_equal %w(hostbased keyboard-interactive none password publickey), net_ssh[:auth_methods].sort
   end
@@ -196,13 +196,13 @@ class TestConfig < NetSSHTest
     open_ssh = {
       'kbdinteractiveauthentication' => false
     }
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
     assert_equal %w(keyboard-interactive none password publickey), net_ssh[:auth_methods].sort
 
     open_ssh = {
       'challengeresponseauthentication' => false
     }
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
     assert_equal %w(keyboard-interactive none password publickey), net_ssh[:auth_methods].sort
   end
 
@@ -212,24 +212,24 @@ class TestConfig < NetSSHTest
       'kbdinteractiveauthentication' => false
     }
 
-    net_ssh = Net::SSH::Config.translate(open_ssh)
+    net_ssh = Net::BloomfireSSH::Config.translate(open_ssh)
     assert_equal %w(none password publickey), net_ssh[:auth_methods].sort
   end
 
   def test_for_should_turn_off_authentication_methods
-    config = Net::SSH::Config.for("test.host", [config(:empty), config(:auth_off), config(:auth_on)])
+    config = Net::BloomfireSSH::Config.for("test.host", [config(:empty), config(:auth_off), config(:auth_on)])
     assert_equal %w(none), config[:auth_methods].sort
   end
 
   def test_for_should_turn_on_authentication_methods
-    config = Net::SSH::Config.for("test.host", [config(:empty), config(:auth_on), config(:auth_off)])
+    config = Net::BloomfireSSH::Config.for("test.host", [config(:empty), config(:auth_on), config(:auth_off)])
     assert_equal %w(hostbased keyboard-interactive none password publickey), config[:auth_methods].sort
   end
 
   def test_configuration_for_when_HOME_is_null_should_not_raise
     with_home_env(nil) do
       with_restored_default_files do
-        Net::SSH.configuration_for("test.host", true)
+        Net::BloomfireSSH.configuration_for("test.host", true)
       end
     end
   end
@@ -237,62 +237,62 @@ class TestConfig < NetSSHTest
   def test_config_for_when_HOME_is_null_should_not_raise
     with_home_env(nil) do
       with_restored_default_files do
-        Net::SSH::Config.for("test.host")
+        Net::BloomfireSSH::Config.for("test.host")
       end
     end
   end
 
   def test_load_with_plus_sign_hosts
-    config = Net::SSH::Config.load(config(:host_plus), "test.host")
+    config = Net::BloomfireSSH::Config.load(config(:host_plus), "test.host")
     assert config['compression']
   end
 
   def test_load_with_numeric_host
-    config = Net::SSH::Config.load(config(:numeric_host), "1234")
+    config = Net::BloomfireSSH::Config.load(config(:numeric_host), "1234")
     assert config['compression']
     assert_equal '2G', config['rekeylimit']
     assert_equal 1980, config['port']
   end
 
   def test_load_wildcar_with_substitutes
-    config = Net::SSH::Config.load(config(:substitutes), "toto")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:substitutes), "toto")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal 'toto', net_ssh[:host_name]
   end
 
   def test_load_sufix_with_substitutes
-    config = Net::SSH::Config.load(config(:substitutes), "test")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:substitutes), "test")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal 'test.sufix', net_ssh[:host_name]
   end
 
   def test_load_prefix_and_sufix_with_substitutes
-    config = Net::SSH::Config.load(config(:substitutes), "1234")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:substitutes), "1234")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal 'prefix.1234.sufix', net_ssh[:host_name]
   end
 
   def test_load_with_send_env
-    config = Net::SSH::Config.load(config(:send_env), "1234")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:send_env), "1234")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal [/^GIT_.*$/, /^LANG$/, /^LC_.*$/], net_ssh[:send_env]
   end
 
   def test_load_with_remote_user
-    config = Net::SSH::Config.load(config(:proxy_remote_user), "behind-proxy")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:proxy_remote_user), "behind-proxy")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert net_ssh[:proxy]
   end
 
   def test_load_with_proxy_jump
-    config = Net::SSH::Config.load(config(:proxy_jump), "behind-proxy")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:proxy_jump), "behind-proxy")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert net_ssh[:proxy]
   end
 
   def test_load_with_include_keyword
-    config = Net::SSH::Config.load(config(:include), "xyz")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:include), "xyz")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal 'example.com', net_ssh[:host_name]
     assert_equal 'foo', net_ssh[:user]
     assert_equal 2345, net_ssh[:port]
@@ -302,26 +302,26 @@ class TestConfig < NetSSHTest
   end
 
   def test_default_files_not_mutable
-    original_default_files = Net::SSH::Config.default_files.clone
+    original_default_files = Net::BloomfireSSH::Config.default_files.clone
 
-    default_files = Net::SSH::Config.default_files
+    default_files = Net::BloomfireSSH::Config.default_files
     default_files.push('garbage')
 
-    assert_equal(original_default_files, Net::SSH::Config.default_files)
+    assert_equal(original_default_files, Net::BloomfireSSH::Config.default_files)
   end
 
   def test_default_auth_methods_not_mutable
-    original_default_auth_methods = Net::SSH::Config.default_auth_methods.clone
+    original_default_auth_methods = Net::BloomfireSSH::Config.default_auth_methods.clone
 
-    default_auth_methods = Net::SSH::Config.default_auth_methods
+    default_auth_methods = Net::BloomfireSSH::Config.default_auth_methods
     default_auth_methods.push('garbage')
 
-    assert_equal(original_default_auth_methods, Net::SSH::Config.default_auth_methods)
+    assert_equal(original_default_auth_methods, Net::BloomfireSSH::Config.default_auth_methods)
   end
 
   def test_load_with_match_block
-    config = Net::SSH::Config.load(config(:match), "test.host")
-    net_ssh = Net::SSH::Config.translate(config)
+    config = Net::BloomfireSSH::Config.load(config(:match), "test.host")
+    net_ssh = Net::BloomfireSSH::Config.translate(config)
     assert_equal true, net_ssh[:forward_agent]
     assert_equal true, net_ssh[:compression]
     assert_equal 22, net_ssh[:port]
@@ -334,9 +334,9 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar")
+      config = Net::BloomfireSSH::Config.load(f, "bar")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -348,11 +348,11 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar")
+      config = Net::BloomfireSSH::Config.load(f, "bar")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -364,13 +364,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -383,13 +383,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -401,13 +401,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -419,13 +419,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -437,13 +437,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -455,13 +455,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_equal 1234, config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_equal 1234, config['port']
     end
   end
@@ -473,13 +473,13 @@ class TestConfig < NetSSHTest
         Compression no
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "foo")
+      config = Net::BloomfireSSH::Config.load(f, "foo")
       assert_nil config['port']
     end
   end
@@ -490,13 +490,13 @@ class TestConfig < NetSSHTest
         Port 1234
     }
     with_config_from_data data do |f|
-      config = Net::SSH::Config.load(f, "bar2")
+      config = Net::BloomfireSSH::Config.load(f, "bar2")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bbaz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bbaz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "bar.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "bar.baz.com")
       assert_nil config['port']
-      config = Net::SSH::Config.load(f, "meh.baz.com")
+      config = Net::BloomfireSSH::Config.load(f, "meh.baz.com")
       assert_equal 1234, config['port']
     end
   end

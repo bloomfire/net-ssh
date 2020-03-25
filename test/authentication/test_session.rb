@@ -4,8 +4,8 @@ require 'net/ssh/authentication/session'
 module Authentication
 
   class TestSession < NetSSHTest
-    include Net::SSH::Transport::Constants
-    include Net::SSH::Authentication::Constants
+    include Net::BloomfireSSH::Transport::Constants
+    include Net::BloomfireSSH::Authentication::Constants
 
     def test_constructor_should_set_defaults
       assert_equal %w[none publickey password keyboard-interactive], session.auth_methods
@@ -19,9 +19,9 @@ module Authentication
         t.return(SERVICE_ACCEPT)
       end
 
-      Net::SSH::Authentication::Methods::Publickey.any_instance.expects(:authenticate).with("next service", "username", "password").raises(Net::SSH::Authentication::DisallowedMethod)
-      Net::SSH::Authentication::Methods::Password.any_instance.expects(:authenticate).with("next service", "username", "password").returns(true)
-      Net::SSH::Authentication::Methods::None.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
+      Net::BloomfireSSH::Authentication::Methods::Publickey.any_instance.expects(:authenticate).with("next service", "username", "password").raises(Net::BloomfireSSH::Authentication::DisallowedMethod)
+      Net::BloomfireSSH::Authentication::Methods::Password.any_instance.expects(:authenticate).with("next service", "username", "password").returns(true)
+      Net::BloomfireSSH::Authentication::Methods::None.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
 
       assert session.authenticate("next service", "username", "password")
     end
@@ -33,7 +33,7 @@ module Authentication
         t.return(255)
       end
 
-      assert_raises(Net::SSH::Exception) { session.authenticate("next service", "username", "password") }
+      assert_raises(Net::BloomfireSSH::Exception) { session.authenticate("next service", "username", "password") }
     end
 
     def test_authenticate_should_return_false_if_all_auth_methods_fail
@@ -43,10 +43,10 @@ module Authentication
         t.return(SERVICE_ACCEPT)
       end
 
-      Net::SSH::Authentication::Methods::Publickey.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
-      Net::SSH::Authentication::Methods::Password.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
-      Net::SSH::Authentication::Methods::KeyboardInteractive.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
-      Net::SSH::Authentication::Methods::None.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
+      Net::BloomfireSSH::Authentication::Methods::Publickey.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
+      Net::BloomfireSSH::Authentication::Methods::Password.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
+      Net::BloomfireSSH::Authentication::Methods::KeyboardInteractive.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
+      Net::BloomfireSSH::Authentication::Methods::None.any_instance.expects(:authenticate).with("next service", "username", "password").returns(false)
 
       assert_equal false, session.authenticate("next service", "username", "password")
     end
@@ -80,12 +80,12 @@ module Authentication
 
     def test_next_message_should_raise_error_on_unrecognized_packet_types
       transport.return(1)
-      assert_raises(Net::SSH::Exception) { session.next_message }
+      assert_raises(Net::BloomfireSSH::Exception) { session.next_message }
     end
 
     def test_expect_message_should_raise_exception_if_next_packet_is_not_expected_type
       transport.return(SERVICE_ACCEPT)
-      assert_raises(Net::SSH::Exception) { session.expect_message(USERAUTH_BANNER) }
+      assert_raises(Net::BloomfireSSH::Exception) { session.expect_message(USERAUTH_BANNER) }
     end
 
     def test_expect_message_should_return_packet_if_next_packet_is_expected_type
@@ -169,7 +169,7 @@ module Authentication
     private
 
     def session(options={})
-      @session ||= Net::SSH::Authentication::Session.new(transport(options), options)
+      @session ||= Net::BloomfireSSH::Authentication::Session.new(transport(options), options)
     end
 
     def transport(options={})
@@ -188,7 +188,7 @@ module Authentication
       assert_equal "publickey", packet.read_string
       assert_equal false, packet.read_bool
       assert_equal "ssh-rsa", packet.read_string
-      key_in_packet = Net::SSH::Buffer.new(packet.read_string).read_key
+      key_in_packet = Net::BloomfireSSH::Buffer.new(packet.read_string).read_key
       assert_equal public_key, key_in_packet.to_pem
     end
 

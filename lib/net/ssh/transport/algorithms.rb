@@ -9,7 +9,7 @@ require 'net/ssh/transport/server_version'
 require 'net/ssh/authentication/ed25519_loader'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Transport
 
       # Implements the higher-level logic behind an SSH key-exchange. It handles
@@ -24,7 +24,7 @@ module Net
         include Constants
 
         # Define the default algorithms, in order of preference, supported by
-        # Net::SSH.
+        # Net::BloomfireSSH.
         ALGORITHMS = {
           host_key: %w[ssh-rsa-cert-v01@openssh.com
                        ssh-rsa-cert-v00@openssh.com
@@ -61,7 +61,7 @@ module Net
             "ecdsa-sha2-nistp384",
             "ecdsa-sha2-nistp256"
           )
-          if Net::SSH::Authentication::ED25519Loader::LOADED
+          if Net::BloomfireSSH::Authentication::ED25519Loader::LOADED
             ALGORITHMS[:host_key].unshift(
               "ssh-ed25519-cert-v01@openssh.com",
               "ssh-ed25519"
@@ -331,7 +331,7 @@ module Net
           compression = algorithms[:compression].join(",")
           language    = algorithms[:language].join(",")
 
-          Net::SSH::Buffer.from(:byte, KEXINIT,
+          Net::BloomfireSSH::Buffer.from(:byte, KEXINIT,
             :long, [rand(0xFFFFFFFF), rand(0xFFFFFFFF), rand(0xFFFFFFFF), rand(0xFFFFFFFF)],
             :mstring, [kex, host_key, encryption, encryption, hmac, hmac],
             :mstring, [compression, compression, language, language],
@@ -368,7 +368,7 @@ module Net
         def negotiate(algorithm)
           match = self[algorithm].find { |item| @server_data[algorithm].include?(item) }
 
-          raise Net::SSH::Exception, "could not settle on #{algorithm} algorithm" if match.nil?
+          raise Net::BloomfireSSH::Exception, "could not settle on #{algorithm} algorithm" if match.nil?
 
           return match
         end
@@ -396,7 +396,7 @@ module Net
           debug { "exchanging keys" }
 
           algorithm = Kex::MAP[kex].new(self, session,
-            client_version_string: Net::SSH::Transport::ServerVersion::PROTO_VERSION,
+            client_version_string: Net::BloomfireSSH::Transport::ServerVersion::PROTO_VERSION,
             server_version_string: session.server_version.version,
             server_algorithm_packet: @server_packet,
             client_algorithm_packet: @client_packet,

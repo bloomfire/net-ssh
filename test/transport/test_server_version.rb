@@ -24,11 +24,11 @@ module Transport
     end
 
     def test_unacceptible_server_version_should_raise_exception
-      assert_raises(Net::SSH::Exception) { subject(socket(false, "SSH-1.4-Testing_1.0\r\n")) }
+      assert_raises(Net::BloomfireSSH::Exception) { subject(socket(false, "SSH-1.4-Testing_1.0\r\n")) }
     end
 
     def test_unexpected_server_close_should_raise_exception
-      assert_raises(Net::SSH::Disconnect) { subject(socket(false, "\r\nDestination server does not have Ssh activated.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh.\r\n", true)) }
+      assert_raises(Net::BloomfireSSH::Disconnect) { subject(socket(false, "\r\nDestination server does not have Ssh activated.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh.\r\n", true)) }
     end
 
     def test_header_lines_should_be_accumulated
@@ -38,7 +38,7 @@ module Transport
     end
 
     def test_server_disconnect_should_raise_exception
-      assert_raises(Net::SSH::Disconnect) { subject(socket(false, "SSH-2.0-Aborting")) }
+      assert_raises(Net::BloomfireSSH::Disconnect) { subject(socket(false, "SSH-2.0-Aborting")) }
     end
 
     private
@@ -46,7 +46,7 @@ module Transport
     def socket(good, version_header, raise_eot=false)
       socket = mock("socket")
 
-      socket.expects(:write).with("#{Net::SSH::Transport::ServerVersion::PROTO_VERSION}\r\n")
+      socket.expects(:write).with("#{Net::BloomfireSSH::Transport::ServerVersion::PROTO_VERSION}\r\n")
       socket.expects(:flush)
 
       data = version_header.split('')
@@ -66,7 +66,7 @@ module Transport
     end
 
     def subject(socket)
-      Net::SSH::Transport::ServerVersion.new(socket, nil)
+      Net::BloomfireSSH::Transport::ServerVersion.new(socket, nil)
     end
   end
 

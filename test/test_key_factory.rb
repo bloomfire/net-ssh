@@ -8,44 +8,44 @@ class TestKeyFactory < NetSSHTest
 
   def test_load_unencrypted_private_RSA_key_should_return_key
     File.expects(:read).with(@key_file).returns(rsa_key.export)
-    assert_equal rsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file).to_der
+    assert_equal rsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).to_der
   end
 
   def test_load_unencrypted_private_RSA_key_should_have_fp_md5
     File.expects(:read).with(@key_file).returns(rsa_key.export)
-    assert_equal rsa_key_fingerprint_md5, Net::SSH::KeyFactory.load_private_key(@key_file).fingerprint
+    assert_equal rsa_key_fingerprint_md5, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).fingerprint
   end
 
   def test_load_unencrypted_private_RSA_key_should_have_fp_sha256
     File.expects(:read).with(@key_file).returns(rsa_key.export)
-    assert_equal rsa_key_fingerprint_sha256, Net::SSH::KeyFactory.load_private_key(@key_file).fingerprint('sha256')
+    assert_equal rsa_key_fingerprint_sha256, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).fingerprint('sha256')
   end
 
   def test_load_unencrypted_private_DSA_key_should_return_key
     File.expects(:read).with(@key_file).returns(dsa_key.export)
-    assert_equal dsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file).to_der
+    assert_equal dsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).to_der
   end
 
   def test_load_unencrypted_private_DSA_key_should_have_fp_md5
     File.expects(:read).with(@key_file).returns(dsa_key.export)
-    assert_equal dsa_key_fingerprint_md5, Net::SSH::KeyFactory.load_private_key(@key_file).fingerprint
+    assert_equal dsa_key_fingerprint_md5, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).fingerprint
   end
 
   def test_load_unencrypted_private_DSA_key_should_have_fp_sha256
     File.expects(:read).with(@key_file).returns(dsa_key.export)
-    assert_equal dsa_key_fingerprint_sha256, Net::SSH::KeyFactory.load_private_key(@key_file).fingerprint('sha256')
+    assert_equal dsa_key_fingerprint_sha256, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).fingerprint('sha256')
   end
 
   def test_load_encrypted_private_RSA_key_should_prompt_for_password_and_return_key
     prompt = MockPrompt.new
     File.expects(:read).with(@key_file).returns(encrypted(rsa_key, "password"))
     prompt.expects(:_ask).with("Enter passphrase for #{@key_file}:", has_entries(type: 'private_key', filename: @key_file), false).returns("password")
-    assert_equal rsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file, nil, true, prompt).to_der
+    assert_equal rsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, nil, true, prompt).to_der
   end
 
   def test_load_encrypted_private_RSA_key_with_password_should_not_prompt_and_return_key
     File.expects(:read).with(@key_file).returns(encrypted(rsa_key, "password"))
-    assert_equal rsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file, "password").to_der
+    assert_equal rsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, "password").to_der
   end
 
   def test_load_encrypted_private_DSA_key_should_prompt_for_password_and_return_key
@@ -54,12 +54,12 @@ class TestKeyFactory < NetSSHTest
     File.expects(:read).with(@key_file).returns(data)
     sha = Digest::SHA256.digest(data)
     prompt.expects(:_ask).with("Enter passphrase for #{@key_file}:", { type: 'private_key', filename: @key_file, sha: sha }, false).returns("password")
-    assert_equal dsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file, nil, true, prompt).to_der
+    assert_equal dsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, nil, true, prompt).to_der
   end
 
   def test_load_encrypted_private_DSA_key_with_password_should_not_prompt_and_return_key
     File.expects(:read).with(@key_file).returns(encrypted(dsa_key, "password"))
-    assert_equal dsa_key.to_der, Net::SSH::KeyFactory.load_private_key(@key_file, "password").to_der
+    assert_equal dsa_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, "password").to_der
   end
 
   def test_load_encrypted_private_key_should_give_three_tries_for_the_password_and_then_raise_exception
@@ -71,107 +71,107 @@ class TestKeyFactory < NetSSHTest
     else
       error_class = [OpenSSL::PKey::RSAError]
     end
-    assert_raises(*error_class) { Net::SSH::KeyFactory.load_private_key(@key_file, nil, true, prompt) }
+    assert_raises(*error_class) { Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, nil, true, prompt) }
   end
 
   def test_load_encrypted_private_key_should_raise_exception_without_asking_passphrase
     File.expects(:read).with(@key_file).returns(encrypted(rsa_key, "password"))
-    Net::SSH::KeyFactory.expects(:prompt).never
+    Net::BloomfireSSH::KeyFactory.expects(:prompt).never
     if OpenSSL::PKey.respond_to?(:read)
       error_class = [ArgumentError, OpenSSL::PKey::PKeyError]
     else
       error_class = [OpenSSL::PKey::RSAError]
     end
-    assert_raises(*error_class) { Net::SSH::KeyFactory.load_private_key(@key_file, nil, false) }
+    assert_raises(*error_class) { Net::BloomfireSSH::KeyFactory.load_private_key(@key_file, nil, false) }
   end
 
   def test_load_public_rsa_key_should_return_key
     File.expects(:read).with(@key_file).returns(public(rsa_key))
-    assert_equal rsa_key.to_blob, Net::SSH::KeyFactory.load_public_key(@key_file).to_blob
+    assert_equal rsa_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key(@key_file).to_blob
   end
 
   def test_load_public_rsa_key_with_comment_should_return_key
     File.expects(:read).with(@key_file).returns(public(rsa_key) + " key_comment")
-    assert_equal rsa_key.to_blob, Net::SSH::KeyFactory.load_public_key(@key_file).to_blob
+    assert_equal rsa_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key(@key_file).to_blob
   end
 
   def test_load_public_rsa_key_with_options_should_return_key
     File.expects(:read).with(@key_file).returns(public(rsa_key, 'environment="FOO=bar"'))
-    assert_equal rsa_key.to_blob, Net::SSH::KeyFactory.load_public_key(@key_file).to_blob
+    assert_equal rsa_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key(@key_file).to_blob
   end
 
   def test_load_public_rsa_key_with_options_and_comment_should_return_key
     File.expects(:read).with(@key_file).returns(public(rsa_key, 'environment="FOO=bar"') + " key_comment")
-    assert_equal rsa_key.to_blob, Net::SSH::KeyFactory.load_public_key(@key_file).to_blob
+    assert_equal rsa_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key(@key_file).to_blob
   end
   if defined?(OpenSSL::PKey::EC)
     def test_load_unencrypted_private_ecdsa_sha2_nistp256_key_should_return_key
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp256_key.to_pem)
-      assert_equal ecdsa_sha2_nistp256_key.to_der, Net::SSH::KeyFactory.load_private_key("/key-file").to_der
+      assert_equal ecdsa_sha2_nistp256_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").to_der
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp384_key_should_return_key
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp384_key.to_pem)
-      assert_equal ecdsa_sha2_nistp384_key.to_der, Net::SSH::KeyFactory.load_private_key("/key-file").to_der
+      assert_equal ecdsa_sha2_nistp384_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").to_der
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp521_key_should_return_key
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp521_key.to_pem)
-      assert_equal ecdsa_sha2_nistp521_key.to_der, Net::SSH::KeyFactory.load_private_key("/key-file").to_der
+      assert_equal ecdsa_sha2_nistp521_key.to_der, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").to_der
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp256_key_should_have_fp_md5
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp256_key.to_pem)
-      assert_equal ecdsa_sha2_nistp256_key_fingerprint_md5, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint
+      assert_equal ecdsa_sha2_nistp256_key_fingerprint_md5, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp256_key_should_have_fp_sha256
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp256_key.to_pem)
-      assert_equal ecdsa_sha2_nistp256_key_fingerprint_sha256, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
+      assert_equal ecdsa_sha2_nistp256_key_fingerprint_sha256, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp384_key_should_have_fp_md5
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp384_key.to_pem)
-      assert_equal ecdsa_sha2_nistp384_key_fingerprint_md5, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint
+      assert_equal ecdsa_sha2_nistp384_key_fingerprint_md5, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp384_key_should_have_fp_sha256
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp384_key.to_pem)
-      assert_equal ecdsa_sha2_nistp384_key_fingerprint_sha256, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
+      assert_equal ecdsa_sha2_nistp384_key_fingerprint_sha256, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp521_key_should_have_fp_md5
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp521_key.to_pem)
-      assert_equal ecdsa_sha2_nistp521_key_fingerprint_md5, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint
+      assert_equal ecdsa_sha2_nistp521_key_fingerprint_md5, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint
     end
 
     def test_load_unencrypted_private_ecdsa_sha2_nistp521_key_should_have_fp_sha256
       File.expects(:read).with(@key_file).returns(ecdsa_sha2_nistp521_key.to_pem)
-      assert_equal ecdsa_sha2_nistp521_key_fingerprint_sha256, Net::SSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
+      assert_equal ecdsa_sha2_nistp521_key_fingerprint_sha256, Net::BloomfireSSH::KeyFactory.load_private_key("/key-file").fingerprint('sha256')
     end
 
     def test_load_public_ecdsa_sha2_nistp256_key_should_return_key
       File.expects(:read).with(@key_file).returns(public(ecdsa_sha2_nistp256_key))
-      assert_equal ecdsa_sha2_nistp256_key.to_blob, Net::SSH::KeyFactory.load_public_key("/key-file").to_blob
+      assert_equal ecdsa_sha2_nistp256_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key("/key-file").to_blob
     end
 
     def test_load_public_ecdsa_sha2_nistp384_key_should_return_key
       File.expects(:read).with(@key_file).returns(public(ecdsa_sha2_nistp384_key))
-      assert_equal ecdsa_sha2_nistp384_key.to_blob, Net::SSH::KeyFactory.load_public_key("/key-file").to_blob
+      assert_equal ecdsa_sha2_nistp384_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key("/key-file").to_blob
     end
 
     def test_load_public_ecdsa_sha2_nistp521_key_should_return_key
       File.expects(:read).with(@key_file).returns(public(ecdsa_sha2_nistp521_key))
-      assert_equal ecdsa_sha2_nistp521_key.to_blob, Net::SSH::KeyFactory.load_public_key("/key-file").to_blob
+      assert_equal ecdsa_sha2_nistp521_key.to_blob, Net::BloomfireSSH::KeyFactory.load_public_key("/key-file").to_blob
     end
   end
 
   def test_load_anonymous_private_key_should_return_key_or_raise_exception
     File.expects(:read).with(@key_file).returns(anonymous_private_key)
     if OpenSSL::PKey.respond_to?(:read)
-      assert_equal OpenSSL::PKey::RSA.new(anonymous_private_key).to_der, Net::SSH::KeyFactory.load_private_key(@key_file).to_der
+      assert_equal OpenSSL::PKey::RSA.new(anonymous_private_key).to_der, Net::BloomfireSSH::KeyFactory.load_private_key(@key_file).to_der
     else
-      assert_raises(OpenSSL::PKey::PKeyError) { Net::SSH::KeyFactory.load_private_key(@key_file) }
+      assert_raises(OpenSSL::PKey::PKeyError) { Net::BloomfireSSH::KeyFactory.load_private_key(@key_file) }
     end
   end
 
@@ -285,7 +285,7 @@ WEKt5v3QsUEgVrzkM4K9UbI=
       result << "#{args} "
     end
     result << "#{key.ssh_type} "
-    result << [Net::SSH::Buffer.from(:key, key).to_s].pack("m*").strip.tr("\n\r\t ", "")
+    result << [Net::BloomfireSSH::Buffer.from(:key, key).to_s].pack("m*").strip.tr("\n\r\t ", "")
     result << " joe@host.test"
   end
 end

@@ -12,7 +12,7 @@ Object.send(:undef_method, :verify) if Object.instance_methods.any? { |v| v.to_s
 module Transport
 
   class TestSession < NetSSHTest
-    include Net::SSH::Transport::Constants
+    include Net::BloomfireSSH::Transport::Constants
 
     TEST_HOST = "net.ssh.test"
     TEST_PORT = 22
@@ -21,7 +21,7 @@ module Transport
       assert_equal TEST_HOST, session.host
       assert_equal TEST_PORT, session.port
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNewOrLocalTunnel,
+        Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel,
         session.host_key_verifier
       )
     end
@@ -31,21 +31,21 @@ module Transport
         'verify_host_key: true is deprecated, use :accept_new_or_local_tunnel'
       )
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNewOrLocalTunnel,
+        Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel,
         session(verify_host_key: true).host_key_verifier
       )
     end
 
     def test_verify_host_key_accept_new_or_local_tunnel_uses_accept_new_or_local_tunnel_verifier
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNewOrLocalTunnel,
+        Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel,
         session(verify_host_key: :accept_new_or_local_tunnel).host_key_verifier
       )
     end
 
     def test_verify_host_key_nil_uses_accept_new_or_local_tunnel_verifier
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNewOrLocalTunnel,
+        Net::BloomfireSSH::Verifiers::AcceptNewOrLocalTunnel,
         session(verify_host_key: nil).host_key_verifier
       )
     end
@@ -53,14 +53,14 @@ module Transport
     def test_verify_host_key_very_uses_accept_new_verifier
       Kernel.expects(:warn).with('verify_host_key: :very is deprecated, use :accept_new')
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNew,
+        Net::BloomfireSSH::Verifiers::AcceptNew,
         session(verify_host_key: :very).host_key_verifier
       )
     end
 
     def test_verify_host_key_accept_new_uses_accept_new_verifier
       assert_instance_of(
-        Net::SSH::Verifiers::AcceptNew,
+        Net::BloomfireSSH::Verifiers::AcceptNew,
         session(verify_host_key: :accept_new).host_key_verifier
       )
     end
@@ -68,7 +68,7 @@ module Transport
     def test_verify_host_key_secure_uses_always_verifier
       Kernel.expects(:warn).with('verify_host_key: :secure is deprecated, use :always')
       assert_instance_of(
-        Net::SSH::Verifiers::Always,
+        Net::BloomfireSSH::Verifiers::Always,
         session(verify_host_key: :secure).host_key_verifier
       )
     end
@@ -76,14 +76,14 @@ module Transport
     def test_verify_host_key_false_uses_never_verifier
       Kernel.expects(:warn).with('verify_host_key: false is deprecated, use :never')
       assert_instance_of(
-        Net::SSH::Verifiers::Never,
+        Net::BloomfireSSH::Verifiers::Never,
         session(verify_host_key: false).host_key_verifier
       )
     end
 
     def test_verify_host_key_null_uses_never_verifier
       assert_instance_of(
-        Net::SSH::Verifiers::Never,
+        Net::BloomfireSSH::Verifiers::Never,
         session(verify_host_key: :never).host_key_verifier
       )
     end
@@ -130,13 +130,13 @@ module Transport
 
     def test_host_as_string_should_return_only_host_when_proxy_command_is_set
       session!(host: "1.2.3.4")
-      socket.stubs(:peer_ip).returns(Net::SSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP)
+      socket.stubs(:peer_ip).returns(Net::BloomfireSSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP)
       assert_equal "1.2.3.4", session.host_as_string
     end
 
     def test_host_as_string_should_return_only_host_and_port_when_host_is_ip_and_port_is_not_default_and_proxy_command_is_set
       session!(host: "1.2.3.4", port: 1234)
-      socket.stubs(:peer_ip).returns(Net::SSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP)
+      socket.stubs(:peer_ip).returns(Net::BloomfireSSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP)
       assert_equal "[1.2.3.4]:1234", session.host_as_string
     end
 
@@ -220,7 +220,7 @@ module Transport
     def test_poll_message_should_silently_handle_disconnect_packets
       session!
       socket.expects(:next_packet).returns(P(:byte, DISCONNECT, :long, 1, :string, "testing", :string, ""))
-      assert_raises(Net::SSH::Disconnect) { session.poll_message }
+      assert_raises(Net::BloomfireSSH::Disconnect) { session.poll_message }
     end
 
     def test_poll_message_should_silently_handle_ignore_packets
@@ -376,7 +376,7 @@ module Transport
 
     def test_log_correct_debug_with_proxy
       logger = TestLogger.new
-      proxy = Net::SSH::Proxy::HTTP.new("")
+      proxy = Net::BloomfireSSH::Proxy::HTTP.new("")
 
       session!(logger: logger, proxy: proxy)
       assert_match "establishing connection to #{TEST_HOST}:#{TEST_PORT} through proxy", logger.messages
@@ -411,10 +411,10 @@ module Transport
         else
           Socket.stubs(:tcp).with(host, options[:port] || TEST_PORT, nil, nil, { connect_timeout: options[:timeout] }).returns(socket)
         end
-        Net::SSH::Transport::ServerVersion.stubs(:new).returns(server_version)
-        Net::SSH::Transport::Algorithms.stubs(:new).returns(algorithms)
+        Net::BloomfireSSH::Transport::ServerVersion.stubs(:new).returns(server_version)
+        Net::BloomfireSSH::Transport::Algorithms.stubs(:new).returns(algorithms)
 
-        Net::SSH::Transport::Session.new(host, options)
+        Net::BloomfireSSH::Transport::Session.new(host, options)
       end
     end
     # a simple alias to make the tests more self-documenting. the bang

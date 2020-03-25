@@ -3,7 +3,7 @@ require 'net/ssh/prompt'
 require 'net/ssh/authentication/methods/abstract'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
       module Methods
 
@@ -27,7 +27,7 @@ module Net
               if message.type == USERAUTH_FAILURE
                 debug { "password failed" }
 
-                raise Net::SSH::Authentication::DisallowedMethod unless
+                raise Net::BloomfireSSH::Authentication::DisallowedMethod unless
                   message[:authentications].split(/,/).include? 'password'
                 password = nil
               end
@@ -44,7 +44,7 @@ module Net
               debug { "password change request received, failing" }
               return false
             else
-              raise Net::SSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
+              raise Net::BloomfireSSH::Exception, "unexpected reply to USERAUTH_REQUEST: #{message.type} (#{message.inspect})"
             end
           end
 

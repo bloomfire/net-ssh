@@ -1,9 +1,9 @@
 module Net
-  module SSH
+  module BloomfireSSH
     module Authentication
 
-      # Describes the constants used by the Net::SSH::Authentication components
-      # of the Net::SSH library. Individual authentication method implemenations
+      # Describes the constants used by the Net::BloomfireSSH::Authentication components
+      # of the Net::BloomfireSSH library. Individual authentication method implemenations
       # may define yet more constants that are specific to their implementation.
       module Constants
         USERAUTH_REQUEST          = 50

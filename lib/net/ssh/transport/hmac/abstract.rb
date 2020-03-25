@@ -2,7 +2,7 @@ require 'openssl'
 require 'openssl/digest'
 
 module Net
-  module SSH
+  module BloomfireSSH
     module Transport
       module HMAC
 

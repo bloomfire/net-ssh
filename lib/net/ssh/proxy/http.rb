@@ -2,23 +2,23 @@ require 'socket'
 require 'net/ssh/proxy/errors'
 
 module Net 
-  module SSH 
+  module BloomfireSSH 
     module Proxy
 
       # An implementation of an HTTP proxy. To use it, instantiate it, then
-      # pass the instantiated object via the :proxy key to Net::SSH.start:
+      # pass the instantiated object via the :proxy key to Net::BloomfireSSH.start:
       #
       #   require 'net/ssh/proxy/http'
       #
-      #   proxy = Net::SSH::Proxy::HTTP.new('proxy_host', proxy_port)
-      #   Net::SSH.start('host', 'user', :proxy => proxy) do |ssh|
+      #   proxy = Net::BloomfireSSH::Proxy::HTTP.new('proxy_host', proxy_port)
+      #   Net::BloomfireSSH.start('host', 'user', :proxy => proxy) do |ssh|
       #     ...
       #   end
       #
       # If the proxy requires authentication, you can pass :user and :password
       # to the proxy's constructor:
       #
-      #   proxy = Net::SSH::Proxy::HTTP.new('proxy_host', proxy_port,
+      #   proxy = Net::BloomfireSSH::Proxy::HTTP.new('proxy_host', proxy_port,
       #      :user => "user", :password => "password")
       #
       # Note that HTTP digest authentication is not supported; Basic only at

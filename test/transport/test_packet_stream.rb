@@ -7,7 +7,7 @@ require 'net/ssh/transport/packet_stream'
 module Transport
 
   class TestPacketStream < NetSSHTest # rubocop:disable Metrics/ClassLength
-    include Net::SSH::Transport::Constants
+    include Net::BloomfireSSH::Transport::Constants
 
     def test_client_name_when_getnameinfo_works
       stream.expects(:getsockname).returns(:sockaddr)
@@ -48,7 +48,7 @@ module Transport
 
     def test_peer_ip_should_return_no_hostip_when_socket_has_no_peername
       assert_equal false, stream.respond_to?(:getpeername)
-      assert_equal Net::SSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP, stream.peer_ip
+      assert_equal Net::BloomfireSSH::Transport::PacketStream::PROXY_COMMAND_HOST_IP, stream.peer_ip
       assert_equal '<no hostip for proxy command>', stream.peer_ip
     end
 
@@ -145,7 +145,7 @@ module Transport
     def test_nonblocking_next_packet_should_raise
       IO.stubs(:select).returns([[stream]])
       stream.stubs(:recv).returns("")
-      assert_raises(Net::SSH::Disconnect) { stream.next_packet(:nonblock) }
+      assert_raises(Net::BloomfireSSH::Disconnect) { stream.next_packet(:nonblock) }
     end
 
     def test_nonblocking_next_packet_should_return_packet_before_raise
@@ -155,7 +155,7 @@ module Transport
       packet = stream.next_packet(:nonblock)
       assert_not_nil packet
       assert_equal DEBUG, packet.type
-      assert_raises(Net::SSH::Disconnect) { stream.next_packet(:nonblock) }
+      assert_raises(Net::BloomfireSSH::Disconnect) { stream.next_packet(:nonblock) }
     end
 
     def test_next_packet_should_block_when_requested_until_entire_packet_is_available
@@ -169,12 +169,12 @@ module Transport
     def test_next_packet_when_blocking_should_fail_when_fill_could_not_read_any_data
       IO.stubs(:select).returns([[stream]])
       stream.stubs(:recv).returns("")
-      assert_raises(Net::SSH::Disconnect) { stream.next_packet(:block) }
+      assert_raises(Net::BloomfireSSH::Disconnect) { stream.next_packet(:block) }
     end
 
     def test_next_packet_when_blocking_times_out
       IO.expects(:select).with([stream], nil, nil, 7).returns(nil)
-      assert_raises(Net::SSH::ConnectionTimeout) { stream.next_packet(:block, 7) }
+      assert_raises(Net::BloomfireSSH::ConnectionTimeout) { stream.next_packet(:block, 7) }
     end
 
     def test_next_packet_fails_with_invalid_argument
@@ -189,14 +189,14 @@ module Transport
     end
 
     def test_enqueue_short_packet_should_ensure_packet_is_at_least_16_bytes_long
-      packet = Net::SSH::Buffer.from(:byte, 0)
+      packet = Net::BloomfireSSH::Buffer.from(:byte, 0)
       stream.enqueue_packet(packet)
       # 12 originally, plus the block-size (8), plus the 4-byte length field
       assert_equal 24, stream.write_buffer.length
     end
 
     def test_enqueue_utf_8_packet_should_ensure_packet_length_is_in_bytes_and_multiple_of_block_length
-      packet = Net::SSH::Buffer.from(:string, "\u2603") # Snowman is 3 bytes
+      packet = Net::BloomfireSSH::Buffer.from(:string, "\u2603") # Snowman is 3 bytes
       stream.enqueue_packet(packet)
       # When bytesize is measured wrong using length, the result is off by 2.
       # With length instead of bytesize, you get 26 length buffer.
@@ -1126,11 +1126,11 @@ module Transport
       end
     end
 
-    ciphers = Net::SSH::Transport::CipherFactory::SSH_TO_OSSL.keys
-    hmacs = Net::SSH::Transport::HMAC::MAP.keys
+    ciphers = Net::BloomfireSSH::Transport::CipherFactory::SSH_TO_OSSL.keys
+    hmacs = Net::BloomfireSSH::Transport::HMAC::MAP.keys
 
     ciphers.each do |cipher_name|
-      unless Net::SSH::Transport::CipherFactory.supported?(cipher_name) && PACKETS.key?(cipher_name)
+      unless Net::BloomfireSSH::Transport::CipherFactory.supported?(cipher_name) && PACKETS.key?(cipher_name)
         puts "Skipping packet stream test for #{cipher_name}"
         next
       end
@@ -1149,8 +1149,8 @@ module Transport
 
           define_method("test_next_packet_with_#{cipher_method_name}_and_#{hmac_method_name}_and_#{compress}_compression") do
             opts = { shared: "123", hash: "^&*", digester: OpenSSL::Digest::SHA1 }
-            cipher = Net::SSH::Transport::CipherFactory.get(cipher_name, opts.merge(key: "ABC", decrypt: true, iv: "abc"))
-            hmac = Net::SSH::Transport::HMAC.get(hmac_name, "{}|", opts)
+            cipher = Net::BloomfireSSH::Transport::CipherFactory.get(cipher_name, opts.merge(key: "ABC", decrypt: true, iv: "abc"))
+            hmac = Net::BloomfireSSH::Transport::HMAC.get(hmac_name, "{}|", opts)
 
             stream.server.set cipher: cipher, hmac: hmac, compression: compress
             stream.stubs(:recv).returns(PACKETS[cipher_name][hmac_name][compress])
@@ -1166,8 +1166,8 @@ module Transport
 
           define_method("test_enqueue_packet_with_#{cipher_method_name}_and_#{hmac_method_name}_and_#{compress}_compression") do
             opts = { shared: "123", digester: OpenSSL::Digest::SHA1, hash: "^&*" }
-            cipher = Net::SSH::Transport::CipherFactory.get(cipher_name, opts.merge(key: "ABC", iv: "abc", encrypt: true))
-            hmac = Net::SSH::Transport::HMAC.get(hmac_name, "{}|", opts)
+            cipher = Net::BloomfireSSH::Transport::CipherFactory.get(cipher_name, opts.merge(key: "ABC", iv: "abc", encrypt: true))
+            hmac = Net::BloomfireSSH::Transport::HMAC.get(hmac_name, "{}|", opts)
 
             srand(100)
             stream.client.set cipher: cipher, hmac: hmac, compression: compress
@@ -1184,13 +1184,13 @@ module Transport
     def stream
       @stream ||= begin
         stream = mock("packet_stream")
-        stream.extend(Net::SSH::Transport::PacketStream)
+        stream.extend(Net::BloomfireSSH::Transport::PacketStream)
         stream
       end
     end
 
     def ssh_packet
-      Net::SSH::Buffer.from(:byte, DEBUG, :bool, true, :string, "debugging", :string, "")
+      Net::BloomfireSSH::Buffer.from(:byte, DEBUG, :bool, true, :string, "debugging", :string, "")
     end
 
     def packet
@@ -1199,7 +1199,7 @@ module Transport
         length = data.length + 4 + 1 # length + padding length
         padding = stream.server.cipher.block_size - (length % stream.server.cipher.block_size)
         padding += stream.server.cipher.block_size if padding < 4
-        Net::SSH::Buffer.from(:long, length + padding - 4, :byte, padding, :raw, data, :raw, "\0" * padding).to_s
+        Net::BloomfireSSH::Buffer.from(:long, length + padding - 4, :byte, padding, :raw, data, :raw, "\0" * padding).to_s
       end
     end
   end
